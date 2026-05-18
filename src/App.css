@@ -1,0 +1,124 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.navbar-wrapper {
+  height: var(--navbar-height);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.sidebar-container {
+  width: 100%;
+  height: 100%;
+  border-right: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  overflow: auto;
+}
+
+.resize-handle {
+  width: 6px;
+  background-color: transparent;
+  position: relative;
+  z-index: 20;
+  cursor: col-resize;
+  transition: background-color 0.2s;
+}
+
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 2px;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.resize-handle:hover::after,
+.resize-handle[data-separator="active"]::after {
+  background-color: var(--color-primary);
+}
+
+.resize-handle-horizontal {
+  height: 6px;
+  width: 100%;
+  background-color: transparent;
+  position: relative;
+  z-index: 20;
+  cursor: row-resize;
+  transition: background-color 0.2s;
+}
+
+.resize-handle-horizontal::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 2px;
+  height: 2px;
+  background-color: transparent;
+  transition: background-color 0.2s;
+}
+
+.resize-handle-horizontal:hover::after,
+.resize-handle-horizontal[data-separator="active"]::after {
+  background-color: var(--color-primary);
+}
+
+.workspace-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.editor-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace-container {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  margin: 16px 16px 8px 0;
+}
+
+.output-section {
+  width: 100%;
+  height: 250px;
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  overflow: hidden;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
