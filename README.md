@@ -37,6 +37,24 @@ While standard client-side SQL uses raw SQLite, standard CBSE curricula focus on
 - **Binary State Serialization**: Multi-DB SQLite instances are serialized into Base64 binaries using `exportAll()` and deserialized via `importAll()`.
 - **User-Isolated Synchronization**: Saved state is pushed and pulled in real-time under `users/${user.uid}/sql_state_v2` in Firebase Realtime Database. Your workspaces and database schemas will dynamically follow you on any device as long as you log in!
 
+### 🔒 Firebase Realtime Database Security Rules (`database.rules.json`)
+To guarantee that no user can view or overwrite another student's compiler state or database schemas, the project requires the following secure architecture rules:
+```json
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    }
+  }
+}
+```
+**Why this is safe & high-performing:**
+- **Scoped Read/Write Permissions**: The `$uid` variable matches the dynamic user directory node. By checking `"$uid === auth.uid"`, the database verifies that the authenticated user's ID matches the workspace's owner ID exactly.
+- **Privacy & Prevention of Data Leakage**: Unauthenticated requests are rejected immediately, and logged-in students can only query, edit, or delete their own custom databases.
+
 ---
 
 ## 🛠️ Quickstart Guide for Students & Instructors

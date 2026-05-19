@@ -8,7 +8,7 @@ const AIAssistant = ({ currentCode, problemContext, language, isOpen, onClose })
         {
             id: '1',
             role: 'assistant',
-            content: `Hey there! I'm your Pulxo ${language || 'Python'} Logic Assistant. Stuck on your ${language || 'Python'} code? Ask me anything about the logic, and I'll help you break it down!`,
+            content: `Hey there! I'm your Py Compiler X ${language || 'Python'} Logic Assistant. Stuck on your ${language || 'Python'} code? Ask me anything about the logic, and I'll help you break it down!`,
             timestamp: new Date()
         }
     ]);
@@ -200,7 +200,7 @@ const AIAssistant = ({ currentCode, problemContext, language, isOpen, onClose })
                     </button>
                 </div>
                 <div style={styles.footerNote}>
-                    Step-by-step logic powered by Pulxo AI
+                    Step-by-step logic powered by Py Compiler X AI
                 </div>
             </div>
         </div>

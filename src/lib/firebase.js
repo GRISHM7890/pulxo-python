@@ -6,14 +6,14 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyC4XGndff_Gu_enCQ3T4jY6yqNZrgzmqE8",
-    authDomain: "pulxo-python.firebaseapp.com",
-    databaseURL: "https://pulxo-python-default-rtdb.firebaseio.com",
-    projectId: "pulxo-python",
-    storageBucket: "pulxo-python.firebasestorage.app",
-    messagingSenderId: "657041715293",
-    appId: "1:657041715293:web:33c283189672201c495db4",
-    measurementId: "G-G9N2RKXS5W"
+    apiKey: "AIzaSyAYMaUPNlXjNwZTTZx-wG6ibLLouz9oG8Y",
+    authDomain: "pycompilerx.firebaseapp.com",
+    databaseURL: "https://pycompilerx-default-rtdb.firebaseio.com",
+    projectId: "pycompilerx",
+    storageBucket: "pycompilerx.firebasestorage.app",
+    messagingSenderId: "407564781368",
+    appId: "1:407564781368:web:8c4550b3e3009b5a54a3cd",
+    measurementId: "G-9TT95GJTBE"
 };
 
 // Initialize Firebase

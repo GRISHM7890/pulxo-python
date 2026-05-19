@@ -25,7 +25,7 @@ function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('Editor');
-  const [code, setCode] = useState(`# Welcome to Pulxo Python
+  const [code, setCode] = useState(`# Welcome to Py Compiler X
 # Write your Python code here
 
 def calculate_fibonacci(n):

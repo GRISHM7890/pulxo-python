@@ -53,7 +53,7 @@ const Profile = ({ onClose }) => {
                             )}
                         </div>
                         <div style={styles.heroInfo}>
-                            <h3 style={styles.heroName}>{profile?.name || user.displayName || 'Pulxo Student'}</h3>
+                            <h3 style={styles.heroName}>{profile?.name || user.displayName || 'Py Compiler X Student'}</h3>
                             <div style={styles.badgeRow}>
                                 <span style={styles.roleBadge}>Logic Warrior</span>
                                 <span style={styles.verificationBadge}>

@@ -12,7 +12,7 @@ const Navbar = ({ isDarkMode, toggleTheme, onRun, isRunning, activeTab, onTabCha
                     <Code2 size={24} color="var(--bg-secondary)" />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={styles.logoText}>PULXO IDE</span>
+                    <span style={styles.logoText}>PY COMPILER X</span>
                     <span style={{ fontSize: '10px', color: 'var(--color-primary)', fontWeight: 'bold', marginLeft: '2px' }}>FOR CBSE 12TH</span>
                 </div>
             </div>
