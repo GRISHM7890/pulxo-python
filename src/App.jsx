@@ -14,17 +14,28 @@ import AuthModal from './components/AuthModal';
 import ProfileSetup from './components/ProfileSetup';
 import Profile from './components/Profile';
 import StudentDashboard from './components/StudentDashboard';
+import GamifiedLearning from './components/GamifiedLearning';
+import BossBattle from './components/BossBattle';
+import LevelUpOverlay from './components/LevelUpOverlay';
+import AchievementToast from './components/AchievementToast';
 import SqlWorkbench from './components/SqlWorkbench';
 import SaveModal from './components/SaveModal';
 import { auditCode } from './lib/logicGuard';
-import { db } from './lib/firebase';
 import { ref, push, set } from 'firebase/database';
+import { useCollaboration } from './hooks/useCollaboration';
+import { useGamification } from './context/GamificationContext';
 
 function App() {
   const { user, profile } = useAuth();
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [theme, setTheme] = useState('light');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [roomId, setRoomId] = useState(null);
+  const { activeUsers, remoteCode, broadcastCode } = useCollaboration(roomId);
+  const gamification = useGamification();
   const [activeTab, setActiveTab] = useState('Editor');
+  const [activeMission, setActiveMission] = useState(null);
   const [code, setCode] = useState(`# Welcome to Py Compiler X
 # Write your Python code here
 
@@ -57,12 +68,31 @@ print(f"Fibonacci Sequence: {result}")
   const editorRef = useRef(null);
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room');
+    if (room) setRoomId(room);
+  }, []);
+
+  useEffect(() => {
+    if (remoteCode !== null) {
+      setCode(remoteCode);
     }
-  }, [isDarkMode]);
+  }, [remoteCode]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.className = '';
+    if (theme !== 'light') {
+      if (theme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.add(`theme-${theme}`);
+    }
+  }, [theme]);
 
   // Connect Engines to terminal state
   useEffect(() => {
@@ -94,7 +124,7 @@ print(f"Fibonacci Sequence: {result}")
     sqlEngine.load();
   }, [selectedLanguage]);
 
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
+  // Theme handled by selector in Navbar
 
   const handleRun = async () => {
     if (isRunning) return;
@@ -104,9 +134,19 @@ print(f"Fibonacci Sequence: {result}")
     setTerminalOutput(prev => [...prev, { text: `$ ${cmd}`, type: 'prompt' }]);
 
     try {
+      let isSuccess = false;
+      const totalLines = code.split('\n').length;
+      
+      // Increment total lines compiled stat
+      if (gamification?.incrementStat) {
+          gamification.incrementStat('totalLinesWritten', totalLines);
+      }
+
       if (selectedLanguage === 'SQL') {
         const result = await sqlEngine.run(code);
         setExecutionTime(result.duration || 0);
+        if (gamification?.addXP) gamification.addXP(5);
+        isSuccess = true;
       } else {
         const result = await pythonEngine.run(code);
         setExecutionTime(result.duration);
@@ -114,13 +154,84 @@ print(f"Fibonacci Sequence: {result}")
         // Trigger Logic Audit after execution
         const detectedProblems = await auditCode(code, selectedLanguage);
         setProblems(detectedProblems);
+
+        if (detectedProblems.length === 0) {
+            if (gamification?.addXP) gamification.addXP(5);
+            isSuccess = true;
+        }
+      }
+
+      // Achievements Checks!
+      if (gamification?.unlockAchievement && gamification?.incrementStat) {
+          const currentTotalRuns = await gamification.incrementStat('totalRuns', 1);
+
+          // 1. First Run achievement
+          if (currentTotalRuns === 1) {
+              gamification.unlockAchievement('first_run');
+          }
+
+          // 2. Hello World Master
+          const normalizedCode = code.toLowerCase();
+          if (normalizedCode.includes('hello') && normalizedCode.includes('world')) {
+              gamification.unlockAchievement('hello_world');
+          }
+
+          // 3. Night Coder
+          const hour = new Date().getHours();
+          if (hour >= 0 && hour <= 5) {
+              gamification.unlockAchievement('night_coder');
+          }
+
+          // 4. Python Explorer (3+ custom def statements)
+          const defCount = (code.match(/def\s+\w+/g) || []).length;
+          if (selectedLanguage === 'Python' && defCount >= 3) {
+              gamification.unlockAchievement('python_explorer');
+          }
+
+          // 5. 1000 Lines Written
+          const currentLinesTotal = gamification.totalLinesWritten || 0;
+          if (currentLinesTotal + totalLines >= 1000) {
+              gamification.unlockAchievement('lines_1000');
+          }
+
+          // 6. Syntax Survivor & Infinite Loop Destroyer
+          if (isSuccess) {
+              const successCount = await gamification.incrementStat('successfulRuns', 1);
+              if (successCount >= 5) {
+                  gamification.unlockAchievement('syntax_survivor');
+              }
+              // Loop terminator detection (has while/for, but no errors)
+              if (code.includes('while') || code.includes('for')) {
+                  gamification.unlockAchievement('infinite_loop_destroyer');
+              }
+          }
+
+          // 7. Logic Master (nested loop with zero flaws detected)
+          const hasNestedLoops = /for\s+\w+\s+in\s+.*:\s*[\r\n]+.*(for|while|if)\s+/.test(code);
+          if (hasNestedLoops && isSuccess && problems.length === 0) {
+              gamification.unlockAchievement('logic_master');
+          }
+      }
+
+      if (isSuccess && gamification?.completeDailyGoal) {
+          const res = await gamification.completeDailyGoal();
+          if (res) {
+              let msg = `🎉 Coding Goal Achieved today! +${res.xpEarned} XP! 🔥`;
+              if (res.comeback) {
+                  msg += `\n💥 Momentum restored! +50 XP Comeback Bonus applied! Welcome back! 🚀`;
+              }
+              if (res.streakBoostActive) {
+                  msg += `\n⚡ Active +20% Streak XP Boost is fueling your leveling!`;
+              }
+              alert(msg);
+          }
       }
     } finally {
       setIsRunning(false);
     }
   };
 
-  const handleApplyFix = (problem) => {
+  const handleApplyFix = async (problem) => {
     if (!problem.fix) return;
 
     // Split code into lines
@@ -136,9 +247,26 @@ print(f"Fibonacci Sequence: {result}")
 
       const newCode = lines.join('\n');
       setCode(newCode);
+      if (roomId) broadcastCode(newCode);
 
       // Clear the fix from problems
       setProblems(prev => prev.filter(p => p !== problem));
+      
+      // Increment Fixes Applied Stat
+      if (gamification?.incrementStat && gamification?.unlockAchievement) {
+          const fixes = await gamification.incrementStat('fixesApplied', 1);
+          
+          // Bug Hunter Achievement
+          if (fixes === 1) {
+              gamification.unlockAchievement('bug_hunter');
+          }
+          
+          // Error Slayer Achievement (3 fixes applied)
+          if (fixes >= 3) {
+              gamification.unlockAchievement('error_slayer');
+          }
+      }
+
       alert(`Fixed line ${problem.line}: ${problem.message}`);
     }
   };
@@ -187,41 +315,68 @@ print(f"Fibonacci Sequence: {result}")
 
   const handlePracticeNote = (noteCode) => {
     setCode(noteCode);
+    if (roomId) broadcastCode(noteCode);
     setActiveTab('Editor');
   };
+
+  const handleCodeChange = (newCode) => {
+    setCode(newCode);
+    if (roomId) broadcastCode(newCode);
+  };
+
+  const renderSidebar = () => (
+    <Sidebar
+      onNotesToggle={() => { setActiveTab('Library'); setIsSidebarOpen(false); }}
+      onPracticeToggle={() => { setActiveTab('Practice'); setIsSidebarOpen(false); }}
+      onSavedProgramsToggle={() => { setActiveTab('Library'); setIsSidebarOpen(false); }}
+      onDashboardToggle={() => { setActiveTab('Dashboard'); setIsSidebarOpen(false); }}
+      onGamifyToggle={() => { setActiveTab('Gamified Learning'); setIsSidebarOpen(false); }}
+      onFileSelect={() => { setActiveTab('Editor'); setIsSidebarOpen(false); }}
+      activeTab={activeTab}
+      language={selectedLanguage}
+    />
+  );
 
   return (
     <div className="app-layout">
       <div className="navbar-wrapper">
         <Navbar
-          isDarkMode={isDarkMode}
-          toggleTheme={toggleTheme}
+          theme={theme}
+          onThemeChange={setTheme}
+          onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          isMobile={isMobile}
           onRun={handleRun}
           isRunning={isRunning}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onSaveNote={handleSaveNote}
           onOpenAuth={() => setIsAuthModalOpen(true)}
+          roomId={roomId}
+          activeUsers={activeUsers}
         />
       </div>
 
       <div className="main-content">
         <PanelGroup orientation="horizontal">
-          <Panel defaultSize={20} minSize={15} maxSize={40}>
-            <div className="sidebar-container" style={{ width: '100%', borderRight: 'none' }}>
-              <Sidebar
-                onNotesToggle={() => setActiveTab('Library')}
-                onPracticeToggle={() => setActiveTab('Practice')}
-                onSavedProgramsToggle={() => setActiveTab('Library')}
-                onDashboardToggle={() => setActiveTab('Dashboard')}
-                onFileSelect={() => setActiveTab('Editor')}
-                activeTab={activeTab}
-                language={selectedLanguage}
-              />
-            </div>
-          </Panel>
+          {!isMobile && (
+            <>
+              <Panel defaultSize={20} minSize={15} maxSize={40}>
+                <div className="sidebar-container" style={{ width: '100%', borderRight: 'none', position: 'relative', transform: 'none', boxShadow: 'none' }}>
+                  {renderSidebar()}
+                </div>
+              </Panel>
+              <PanelResizeHandle className="resize-handle" />
+            </>
+          )}
 
-          <PanelResizeHandle className="resize-handle" />
+          {isMobile && (
+            <>
+              <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
+              <div className={`sidebar-container ${isSidebarOpen ? 'open' : ''}`}>
+                {renderSidebar()}
+              </div>
+            </>
+          )}
 
           <Panel>
             {activeTab === 'Library' ? (
@@ -244,6 +399,17 @@ print(f"Fibonacci Sequence: {result}")
               <StudentDashboard
                 onClose={() => setActiveTab('Editor')}
               />
+            ) : activeTab === 'Gamified Learning' ? (
+              activeMission ? (
+                <BossBattle 
+                  mission={activeMission} 
+                  onExit={() => setActiveMission(null)} 
+                />
+              ) : (
+                <GamifiedLearning 
+                  onStartBossBattle={(mission) => setActiveMission(mission)} 
+                />
+              )
             ) : (
               <div className="workspace-main" style={{ height: '100%' }}>
                 {selectedLanguage === 'SQL' ? (
@@ -256,9 +422,9 @@ print(f"Fibonacci Sequence: {result}")
                     <div className="editor-section">
                       <Editor
                         ref={editorRef}
-                        isDarkMode={isDarkMode}
+                        isDarkMode={['dark', 'neon', 'glass'].includes(theme)}
                         code={code}
-                        setCode={setCode}
+                        setCode={handleCodeChange}
                         onRun={handleRun}
                         language={selectedLanguage}
                       />
@@ -290,6 +456,8 @@ print(f"Fibonacci Sequence: {result}")
 
       {user && profile && !profile.isComplete && <ProfileSetup />}
 
+      <LevelUpOverlay />
+      <AchievementToast />
       <SaveModal
         isOpen={isSaveModalOpen}
         onClose={() => setIsSaveModalOpen(false)}

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Tag, FileCode2, FilePlus, Terminal, GraduationCap, Archive, MoreHorizontal, BarChart2, Database } from 'lucide-react';
+import { Tag, FileCode2, FilePlus, Terminal, GraduationCap, Archive, MoreHorizontal, BarChart2, Database, Trophy } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { ref, onValue, limitToLast, query } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import DatabaseSchema from './DatabaseSchema';
 
-const Sidebar = ({ onNotesToggle, onPracticeToggle, activeTab, onSavedProgramsToggle, onFileSelect, onDashboardToggle, language = 'Python' }) => {
+const Sidebar = ({ onNotesToggle, onPracticeToggle, activeTab, onSavedProgramsToggle, onFileSelect, onDashboardToggle, onGamifyToggle, language = 'Python' }) => {
     const { user } = useAuth();
     const [recentPrograms, setRecentPrograms] = useState([]);
 
@@ -71,6 +71,13 @@ const Sidebar = ({ onNotesToggle, onPracticeToggle, activeTab, onSavedProgramsTo
                             >
                                 <BarChart2 size={16} color="var(--text-secondary)" />
                                 <span>Progress</span>
+                            </div>
+                            <div
+                                style={Object.assign({}, styles.fileItem, activeTab === 'Gamified Learning' ? styles.activeFileItem : {})}
+                                onClick={() => onGamifyToggle && onGamifyToggle()}
+                            >
+                                <Trophy size={16} color="var(--color-primary)" />
+                                <span>Gamified Learning</span>
                             </div>
                             <div
                                 style={Object.assign({}, styles.fileItem, activeTab === 'Library' ? styles.activeFileItem : {})}

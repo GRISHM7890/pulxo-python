@@ -1,4 +1,5 @@
 import React, { useCallback, useImperativeHandle, forwardRef, useRef, useState, useEffect } from 'react';
+import { Expand, Shrink } from 'lucide-react';
 import sqlEngine from '../lib/sqlEngine';
 import CodeMirror from '@uiw/react-codemirror';
 import { python } from '@codemirror/lang-python';
@@ -67,6 +68,15 @@ const pythonLinter = linter((view) => {
 const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Python' }, ref) => {
     const editorViewRef = useRef(null);
     const [schema, setSchema] = useState([]);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         if (language === 'SQL') {
@@ -96,13 +106,25 @@ const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Pytho
         return true;
     }, [onRun]);
 
+    const insertSymbol = useCallback((symbol) => {
+        if (editorViewRef.current && editorViewRef.current.view) {
+            const view = editorViewRef.current.view;
+            const pos = view.state.selection.main.head;
+            view.dispatch({
+                changes: { from: pos, insert: symbol },
+                selection: { anchor: pos + symbol.length }
+            });
+            view.focus();
+        }
+    }, []);
+
     const customKeybinds = keymap.of([
         { key: "Mod-s", run: saveAction, preventDefault: true },
         { key: "Mod-Enter", run: runAction, preventDefault: true },
     ]);
 
     return (
-        <div style={styles.container}>
+        <div style={styles.container} className={isFullscreen ? 'editor-fullscreen' : ''}>
             <div style={styles.header}>
                 <div style={styles.tabs}>
                     <div style={styles.tabActive}>
@@ -115,6 +137,14 @@ const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Pytho
                         </div>
                     )}
                 </div>
+                <button 
+                    className="btn-icon btn" 
+                    onClick={() => setIsFullscreen(!isFullscreen)}
+                    style={{ margin: '0 8px 4px auto', padding: '4px' }}
+                    title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                >
+                    {isFullscreen ? <Shrink size={18} /> : <Expand size={18} />}
+                </button>
             </div>
 
             <div style={styles.editorWrapper}>
@@ -158,6 +188,23 @@ const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Pytho
                     className="pulxo-editor"
                 />
             </div>
+
+            {isMobile && (
+                <div className="mobile-toolbar">
+                    {['(', ')', '[', ']', '{', '}', ':', '=', '+', '-', '*', '#', '<', '>'].map(sym => (
+                        <button 
+                            key={sym} 
+                            className="toolbar-btn"
+                            onPointerDown={(e) => {
+                                e.preventDefault(); // Prevents editor from losing focus
+                                insertSymbol(sym);
+                            }}
+                        >
+                            {sym}
+                        </button>
+                    ))}
+                </div>
+            )}
 
             <style>{`
                 .pulxo-editor {
