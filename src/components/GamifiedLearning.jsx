@@ -1,93 +1,373 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useGamification } from '../context/GamificationContext';
-import { Trophy, Star, Target, Flame, CheckCircle, Lock, Play } from 'lucide-react';
+import { Trophy, Star, Target, Flame, CheckCircle2, Lock, Play, Filter, Sparkles, Code2, Terminal, AlertCircle } from 'lucide-react';
+import { MISSIONS, DIFFICULTY_LEVELS, MISSION_TYPES } from '../lib/missionData';
 
 const GamifiedLearning = ({ onStartBossBattle }) => {
-    const gamification = useGamification();
+    const gamification = useGamification() || {};
+    const [subTab, setSubTab] = useState('missions'); // 'map', 'missions'
 
-    const missions = [
-        { id: 1, title: 'Syntax Apprentice', xp: 50, unlocked: true, completed: gamification?.completedMissions?.[1] },
-        { id: 2, title: 'Loops of Logic', xp: 100, unlocked: gamification?.level >= 2, completed: gamification?.completedMissions?.[2] },
-        { id: 3, title: 'Defeat the Data Dragon', xp: 300, unlocked: gamification?.level >= 3, isBoss: true, completed: gamification?.completedMissions?.[3] },
-        { id: 4, title: 'Algorithm Master', xp: 500, unlocked: gamification?.level >= 5, completed: gamification?.completedMissions?.[4] },
+    // Filtering states for the tactical board
+    const [filterDifficulty, setFilterDifficulty] = useState('all');
+    const [filterType, setFilterType] = useState('all');
+    const [filterStatus, setFilterStatus] = useState('all');
+
+    if (!gamification) return <div style={styles.container}>Loading Core Game Engine...</div>;
+
+    const userLevel = gamification.level || 1;
+    const completedMissions = gamification.completedMissions || {};
+
+    // Helper to evaluate if a static mission is unlocked
+    const isMissionUnlocked = (m) => {
+        if (m.difficulty === 'beginner') return true;
+        if (m.difficulty === 'intermediate') return userLevel >= 2;
+        if (m.difficulty === 'advanced') return userLevel >= 3;
+        if (m.difficulty === 'legendary') return userLevel >= 5;
+        return true;
+    };
+
+    // Filter missions list based on user selections
+    const filteredMissions = MISSIONS.filter(m => {
+        const isUnlocked = isMissionUnlocked(m);
+        const isCompleted = completedMissions[m.id];
+
+        // 1. Difficulty Filter
+        if (filterDifficulty !== 'all' && m.difficulty !== filterDifficulty) return false;
+
+        // 2. Type Filter
+        if (filterType !== 'all' && m.type !== filterType) return false;
+
+        // 3. Status Filter
+        if (filterStatus !== 'all') {
+            if (filterStatus === 'completed' && !isCompleted) return false;
+            if (filterStatus === 'locked' && isUnlocked) return false;
+            if (filterStatus === 'playable' && (!isUnlocked || isCompleted)) return false;
+        }
+
+        return true;
+    });
+
+    const skillTreeMissions = [
+        { id: 1, title: 'Syntax Apprentice', xp: 50, unlocked: true, completed: completedMissions['mission_list_squarer'], missionKey: 'mission_list_squarer' },
+        { id: 2, title: 'Binary Seeker', xp: 100, unlocked: userLevel >= 2, completed: completedMissions['mission_binary_search'], missionKey: 'mission_binary_search' },
+        { id: 3, title: 'Caesar Cipher Engine', xp: 150, unlocked: userLevel >= 2, completed: completedMissions['mission_caesar_cipher'], missionKey: 'mission_caesar_cipher' },
+        { id: 4, title: 'Fibonacci Master', xp: 250, unlocked: userLevel >= 3, completed: completedMissions['mission_memoized_fib'], missionKey: 'mission_memoized_fib' },
+        { id: 5, title: 'Slay the Sorcerer', xp: 500, unlocked: userLevel >= 5, isBoss: true, completed: completedMissions['mission_anagram_sorcerer'], missionKey: 'mission_anagram_sorcerer' }
     ];
 
-    if (!gamification) return <div style={styles.container}>Loading Game Data...</div>;
+    const getDifficultyStyle = (difficulty) => {
+        return DIFFICULTY_LEVELS[difficulty] || DIFFICULTY_LEVELS.beginner;
+    };
+
+    const getTypeLabel = (type) => {
+        return MISSION_TYPES[type]?.label || 'General Challenge';
+    };
 
     return (
         <div style={styles.container}>
-            {/* Hero Section */}
+            {/* Immersive Cyberpunk Status Card */}
             <div style={styles.hero}>
                 <div style={styles.heroLeft}>
                     <div style={styles.rankBadge}>
-                        <Trophy size={48} color="var(--color-primary)" />
+                        <Trophy size={40} color="var(--color-primary)" />
                     </div>
                     <div>
-                        <h1 style={styles.heroTitle}>{gamification.rank}</h1>
-                        <p style={styles.heroSubtitle}>Level {gamification.level} Programmer</p>
+                        <h1 style={styles.heroTitle}>{gamification.rank || 'Bronze Scripter'}</h1>
+                        <p style={styles.heroSubtitle}>Level {userLevel} System Operator</p>
                     </div>
                 </div>
                 <div style={styles.heroRight}>
                     <div style={styles.statCard}>
-                        <Flame size={24} color="#f59e0b" />
+                        <Flame size={20} color="#f59e0b" style={{ filter: 'drop-shadow(0 0 5px #f59e0b)' }} />
                         <div>
-                            <div style={styles.statValue}>{gamification.streak}</div>
-                            <div style={styles.statLabel}>Day Streak</div>
+                            <div style={styles.statValue}>{gamification.streak || 0}d</div>
+                            <div style={styles.statLabel}>Active Streak</div>
                         </div>
                     </div>
                     <div style={styles.statCard}>
-                        <Star size={24} color="var(--color-primary)" />
+                        <Star size={20} color="var(--color-primary)" style={{ filter: 'drop-shadow(0 0 5px var(--color-primary))' }} />
                         <div>
-                            <div style={styles.statValue}>{gamification.xp}</div>
-                            <div style={styles.statLabel}>Total XP</div>
+                            <div style={styles.statValue}>{gamification.xp || 0}</div>
+                            <div style={styles.statLabel}>Matrix XP</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Learning Map */}
-            <div style={styles.mapContainer}>
-                <h2 style={styles.sectionTitle}><Target size={20} /> Learning Map (Skill Tree)</h2>
-                <div style={styles.nodesContainer}>
-                    {missions.map((mission, index) => (
-                        <div key={mission.id} style={{ display: 'flex', alignItems: 'center' }}>
-                            <div style={{
-                                ...styles.node,
-                                opacity: mission.unlocked ? 1 : 0.5,
-                                borderColor: mission.completed ? 'var(--color-success)' : mission.isBoss ? 'var(--color-error)' : 'var(--border-color)',
-                                backgroundColor: mission.completed ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-secondary)'
-                            }}>
-                                <div style={styles.nodeHeader}>
-                                    <span style={{ fontWeight: 'bold' }}>{mission.title}</span>
-                                    {mission.completed ? <CheckCircle size={16} color="var(--color-success)" /> : !mission.unlocked ? <Lock size={16} /> : null}
-                                </div>
-                                <div style={styles.nodeXP}>+{mission.xp} XP</div>
-                                {mission.unlocked && !mission.completed && (
-                                    <button 
-                                        className={`btn ${mission.isBoss ? 'btn-error' : 'btn-primary'}`} 
-                                        style={{ marginTop: '12px', width: '100%' }}
-                                        onClick={() => {
-                                            if (mission.isBoss && onStartBossBattle) onStartBossBattle(mission);
-                                            else alert('Starting mission: ' + mission.title);
-                                        }}
-                                    >
-                                        <Play size={14} style={{ marginRight: '4px' }} /> {mission.isBoss ? 'Start Boss Battle' : 'Start Mission'}
-                                    </button>
-                                )}
-                            </div>
-                            {index < missions.length - 1 && (
-                                <div style={{
-                                    width: '40px',
-                                    height: '4px',
-                                    backgroundColor: mission.completed ? 'var(--color-success)' : 'var(--border-color)',
-                                    borderRadius: '2px',
-                                    margin: '0 8px'
-                                }}></div>
-                            )}
-                        </div>
-                    ))}
+            {/* Cyber Navigation Tabs */}
+            <div style={styles.navigationRow}>
+                <div style={styles.tabGroup}>
+                    <button
+                        style={subTab === 'missions' ? styles.navTabActive : styles.navTab}
+                        onClick={() => setSubTab('missions')}
+                    >
+                        <Terminal size={14} /> Tactical Board
+                    </button>
+                    <button
+                        style={subTab === 'map' ? styles.navTabActive : styles.navTab}
+                        onClick={() => setSubTab('map')}
+                    >
+                        <Target size={14} /> System Map (Skill Tree)
+                    </button>
                 </div>
             </div>
+
+            {/* MAP VIEW (SKILL TREE ROADMAP) */}
+            {subTab === 'map' && (
+                <div style={styles.mapContainer}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                        <h2 style={styles.sectionTitle}><Target size={18} /> Logical Roadmap</h2>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Progress relative to system access level</span>
+                    </div>
+
+                    <div style={styles.nodesContainer}>
+                        {skillTreeMissions.map((node, index) => {
+                            const matchingFullMission = MISSIONS.find(m => m.id === node.missionKey);
+                            return (
+                                <div key={node.id} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <div className={`skill-tree-node ${node.completed ? 'node-done' : node.unlocked ? 'node-ready' : 'node-locked'} ${node.isBoss ? 'boss-node' : ''}`} style={{
+                                        ...styles.node,
+                                        opacity: node.unlocked ? 1 : 0.45,
+                                        borderColor: node.completed ? 'var(--color-success)' : node.isBoss ? 'var(--color-error)' : 'var(--border-color)',
+                                        boxShadow: node.completed ? '0 0 15px rgba(16, 185, 129, 0.15)' : node.isBoss && node.unlocked ? '0 0 20px rgba(239, 68, 68, 0.25)' : 'none'
+                                    }}>
+                                        <div style={styles.nodeHeader}>
+                                            <span style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80%' }}>
+                                                {node.title}
+                                            </span>
+                                            {node.completed ? (
+                                                <CheckCircle2 size={16} color="var(--color-success)" style={{ filter: 'drop-shadow(0 0 3px var(--color-success))' }} />
+                                            ) : !node.unlocked ? (
+                                                <Lock size={14} color="var(--text-muted)" />
+                                            ) : node.isBoss ? (
+                                                <Sparkles className="spin" size={14} color="var(--color-error)" />
+                                            ) : null}
+                                        </div>
+                                        <div style={styles.nodeXP}>+{node.xp} XP</div>
+                                        
+                                        {node.unlocked ? (
+                                            <button
+                                                className={`btn ${node.isBoss ? 'btn-error' : 'btn-primary'}`}
+                                                style={{ marginTop: '14px', width: '100%', padding: '6px 12px', fontSize: '12px' }}
+                                                onClick={() => {
+                                                    if (matchingFullMission && onStartBossBattle) {
+                                                        onStartBossBattle(matchingFullMission);
+                                                    }
+                                                }}
+                                            >
+                                                <Play size={12} style={{ marginRight: '4px' }} />
+                                                {node.completed ? 'Replay Run' : node.isBoss ? 'Engage Boss' : 'Launch Unit'}
+                                            </button>
+                                        ) : (
+                                            <div style={styles.lockedNodeLabel}>
+                                                Locked (Level {node.id === 2 || node.id === 3 ? 2 : node.id === 4 ? 3 : 5})
+                                            </div>
+                                        )}
+                                    </div>
+                                    {index < skillTreeMissions.length - 1 && (
+                                        <div style={{
+                                            width: '40px',
+                                            height: '3px',
+                                            backgroundColor: node.completed ? 'var(--color-success)' : 'var(--border-color)',
+                                            borderRadius: '2px',
+                                            margin: '0 4px',
+                                            boxShadow: node.completed ? '0 0 8px var(--color-success)' : 'none'
+                                        }}></div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
+            {/* MISSION BOARD VIEW (FILTERED MISSIONS matrix) */}
+            {subTab === 'missions' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* Control / Filter Bar */}
+                    <div style={styles.filterBar}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '13px', fontWeight: 'bold' }}>
+                            <Filter size={16} /> Filters
+                        </div>
+                        <div style={styles.filterGroup}>
+                            {/* Difficulty Selector */}
+                            <select
+                                className="cyber-select"
+                                value={filterDifficulty}
+                                onChange={(e) => setFilterDifficulty(e.target.value)}
+                                style={styles.filterSelect}
+                            >
+                                <option value="all">All Difficulties</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                                <option value="legendary">Legendary</option>
+                            </select>
+
+                            {/* Type Selector */}
+                            <select
+                                className="cyber-select"
+                                value={filterType}
+                                onChange={(e) => setFilterType(e.target.value)}
+                                style={styles.filterSelect}
+                            >
+                                <option value="all">All Mission Types</option>
+                                <option value="fix_broken_code">Fix Broken Code</option>
+                                <option value="predict_output">Predict Output</option>
+                                <option value="find_hidden_bugs">Find Hidden Bugs</option>
+                                <option value="build_mini_project">Build Mini Project</option>
+                                <option value="logic_puzzle">Logic Puzzle</option>
+                                <option value="ai_assisted">AI-Assisted</option>
+                                <option value="optimize_slow_code">Optimize Slow Code</option>
+                            </select>
+
+                            {/* Completion Status */}
+                            <select
+                                className="cyber-select"
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                style={styles.filterSelect}
+                            >
+                                <option value="all">All Statuses</option>
+                                <option value="playable">Playable (Unlocked)</option>
+                                <option value="completed">Completed</option>
+                                <option value="locked">Locked</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Missions Grid Display */}
+                    {filteredMissions.length === 0 ? (
+                        <div style={styles.noMissionsCard}>
+                            <AlertCircle size={28} color="var(--text-muted)" style={{ marginBottom: '8px' }} />
+                            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-muted)' }}>No tactical units found matching selected matrix filters.</p>
+                        </div>
+                    ) : (
+                        <div style={styles.missionsGrid}>
+                            {filteredMissions.map((m) => {
+                                const isUnlocked = isMissionUnlocked(m);
+                                const isCompleted = completedMissions[m.id];
+                                const diffMeta = getDifficultyStyle(m.difficulty);
+
+                                return (
+                                    <div
+                                        key={m.id}
+                                        style={{
+                                            ...styles.missionCard,
+                                            opacity: isUnlocked ? 1 : 0.5,
+                                            borderStyle: isUnlocked ? 'solid' : 'dashed',
+                                            borderColor: isCompleted ? 'rgba(16, 185, 129, 0.4)' : isUnlocked ? 'var(--border-color)' : 'var(--border-color)'
+                                        }}
+                                        className={`mission-card-interactive ${isCompleted ? 'completed' : ''}`}
+                                    >
+                                        {/* Rarity & Completion Header */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                            <span style={{
+                                                fontSize: '9px',
+                                                fontWeight: '800',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.6px',
+                                                border: `1px solid ${diffMeta.color}`,
+                                                color: diffMeta.color,
+                                                padding: '1px 8px',
+                                                borderRadius: '10px'
+                                            }}>
+                                                {m.difficulty}
+                                            </span>
+                                            {isCompleted ? (
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-success)', fontSize: '11px', fontWeight: 'bold' }}>
+                                                    <CheckCircle2 size={12} /> Solved
+                                                </span>
+                                            ) : !isUnlocked ? (
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '11px' }}>
+                                                    <Lock size={12} /> Locked
+                                                </span>
+                                            ) : (
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-primary)', fontSize: '11px', fontWeight: 'bold' }}>
+                                                    ⚡ Ready
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Body */}
+                                        <h3 style={styles.cardHeaderTitle}>{m.title}</h3>
+                                        <p style={styles.cardDescText}>{m.briefing}</p>
+
+                                        {/* Meta details */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                                            <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                                {getTypeLabel(m.type)}
+                                            </span>
+                                            <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 'bold' }}>
+                                                +{m.xp} XP
+                                            </span>
+                                        </div>
+
+                                        {/* Action Button */}
+                                        {isUnlocked ? (
+                                            <button
+                                                className={`btn ${m.difficulty === 'legendary' ? 'btn-error' : 'btn-primary'}`}
+                                                style={{ marginTop: '14px', width: '100%', padding: '8px', fontSize: '13px', fontWeight: 'bold' }}
+                                                onClick={() => onStartBossBattle && onStartBossBattle(m)}
+                                            >
+                                                <Play size={12} /> {isCompleted ? 'Replay Mission' : m.difficulty === 'legendary' ? 'Engage Overlord' : 'Deploy Command'}
+                                            </button>
+                                        ) : (
+                                            <div style={styles.lockedHintBlock}>
+                                                Locked: Access Level {m.difficulty === 'intermediate' ? '2' : m.difficulty === 'advanced' ? '3' : '5'} Required
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <style>{`
+                .cyber-select {
+                    background-color: var(--bg-tertiary);
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    padding: 8px 12px;
+                    color: var(--text-primary);
+                    font-size: 13px;
+                    outline: none;
+                    cursor: pointer;
+                    transition: border-color 0.2s;
+                }
+                .cyber-select:focus {
+                    border-color: var(--color-primary);
+                }
+                .skill-tree-node {
+                    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+                .skill-tree-node:hover {
+                    transform: translateY(-4px) scale(1.02);
+                }
+                .node-ready {
+                    border-color: var(--color-primary) !important;
+                }
+                .node-ready:hover {
+                    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2) !important;
+                }
+                .mission-card-interactive {
+                    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+                .mission-card-interactive:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+                    border-color: rgba(59, 130, 246, 0.25);
+                }
+                .mission-card-interactive.completed {
+                    background: linear-gradient(145deg, rgba(16, 185, 129, 0.02), var(--bg-secondary));
+                }
+                .mission-card-interactive.completed:hover {
+                    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.08);
+                    border-color: rgba(16, 185, 129, 0.3);
+                }
+            `}</style>
         </div>
     );
 };
@@ -105,13 +385,14 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '32px',
+        padding: '24px 32px',
         backgroundColor: 'var(--bg-secondary)',
         borderRadius: '16px',
         border: '1px solid var(--border-color)',
-        marginBottom: '32px',
+        marginBottom: '24px',
         flexWrap: 'wrap',
-        gap: '24px'
+        gap: '24px',
+        boxShadow: 'var(--shadow-soft)'
     },
     heroLeft: {
         display: 'flex',
@@ -119,27 +400,30 @@ const styles = {
         gap: '24px'
     },
     rankBadge: {
-        width: '96px',
-        height: '96px',
-        borderRadius: '50%',
+        width: '64px',
+        height: '64px',
+        borderRadius: '16px',
         backgroundColor: 'var(--bg-tertiary)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        border: '4px solid var(--color-primary)',
-        boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)'
+        border: '2px solid var(--color-primary)',
+        boxShadow: '0 0 15px rgba(59, 130, 246, 0.15)'
     },
     heroTitle: {
-        fontSize: '32px',
-        fontWeight: 'bold',
+        fontSize: '24px',
+        fontWeight: '800',
         margin: '0 0 4px 0',
-        background: 'linear-gradient(45deg, var(--color-primary), #a855f7)',
+        background: 'linear-gradient(90deg, var(--color-primary), #a855f7)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
     },
     heroSubtitle: {
-        fontSize: '16px',
+        fontSize: '13px',
         color: 'var(--text-secondary)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.5px',
+        fontWeight: 'bold',
         margin: 0
     },
     heroRight: {
@@ -150,60 +434,188 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
-        padding: '16px 24px',
+        padding: '12px 20px',
         backgroundColor: 'var(--bg-tertiary)',
         borderRadius: '12px',
         border: '1px solid var(--border-color)',
     },
     statValue: {
-        fontSize: '20px',
-        fontWeight: 'bold'
+        fontSize: '18px',
+        fontWeight: '800'
     },
     statLabel: {
-        fontSize: '12px',
+        fontSize: '10px',
         color: 'var(--text-muted)',
         textTransform: 'uppercase',
-        fontWeight: 'bold'
+        fontWeight: '800',
+        letterSpacing: '0.4px'
+    },
+    navigationRow: {
+        marginBottom: '24px',
+        borderBottom: '1px solid var(--border-color)'
+    },
+    tabGroup: {
+        display: 'flex',
+        gap: '8px'
+    },
+    navTab: {
+        padding: '12px 20px',
+        background: 'none',
+        border: 'none',
+        color: 'var(--text-muted)',
+        fontFamily: 'var(--font-sans)',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        borderBottom: '2px solid transparent',
+        transition: 'all 0.2s'
+    },
+    navTabActive: {
+        padding: '12px 20px',
+        background: 'none',
+        border: 'none',
+        color: 'var(--color-primary)',
+        fontFamily: 'var(--font-sans)',
+        fontSize: '14px',
+        fontWeight: 'bold',
+        cursor: 'default',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        borderBottom: '2px solid var(--color-primary)',
+        transition: 'all 0.2s'
     },
     mapContainer: {
         backgroundColor: 'var(--bg-secondary)',
         padding: '24px',
         borderRadius: '16px',
         border: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-soft)'
     },
     sectionTitle: {
-        fontSize: '20px',
+        fontSize: '16px',
         fontWeight: 'bold',
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        marginBottom: '24px'
+        margin: 0
     },
     nodesContainer: {
         display: 'flex',
         alignItems: 'center',
         overflowX: 'auto',
-        paddingBottom: '16px'
+        padding: '16px 8px 24px 8px'
     },
     node: {
-        minWidth: '220px',
-        padding: '20px',
+        minWidth: '200px',
+        maxWidth: '200px',
+        padding: '16px',
         borderRadius: '12px',
         border: '2px solid var(--border-color)',
-        transition: 'all 0.3s ease',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+        backgroundColor: 'var(--bg-secondary)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
     },
     nodeHeader: {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: '8px',
-        fontSize: '16px'
+        marginBottom: '6px',
+        fontSize: '14px'
     },
     nodeXP: {
-        fontSize: '14px',
-        color: 'var(--color-primary)',
+        fontSize: '12px',
+        color: '#f59e0b',
         fontWeight: 'bold'
+    },
+    lockedNodeLabel: {
+        fontSize: '10px',
+        color: 'var(--text-muted)',
+        marginTop: '14px',
+        textAlign: 'center',
+        padding: '6px',
+        backgroundColor: 'var(--bg-tertiary)',
+        borderRadius: '6px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.4px',
+        fontWeight: 'bold'
+    },
+    filterBar: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '16px 24px',
+        backgroundColor: 'var(--bg-secondary)',
+        borderRadius: '12px',
+        border: '1px solid var(--border-color)',
+        flexWrap: 'wrap',
+        gap: '16px'
+    },
+    filterGroup: {
+        display: 'flex',
+        gap: '12px',
+        flexWrap: 'wrap'
+    },
+    filterSelect: {
+        minWidth: '150px'
+    },
+    noMissionsCard: {
+        padding: '48px',
+        backgroundColor: 'var(--bg-secondary)',
+        borderRadius: '16px',
+        border: '1px dashed var(--border-color)',
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    missionsGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: '20px'
+    },
+    missionCard: {
+        backgroundColor: 'var(--bg-secondary)',
+        borderRadius: '16px',
+        border: '1px solid var(--border-color)',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: 'var(--shadow-soft)'
+    },
+    cardHeaderTitle: {
+        fontSize: '16px',
+        fontWeight: '800',
+        margin: '0 0 8px 0',
+        color: 'var(--text-primary)',
+        lineHeight: '1.3'
+    },
+    cardDescText: {
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.5',
+        margin: 0,
+        flexGrow: 1,
+        display: '-webkit-box',
+        WebkitLineClamp: 3,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+    },
+    lockedHintBlock: {
+        fontSize: '11px',
+        color: 'var(--text-muted)',
+        backgroundColor: 'var(--bg-tertiary)',
+        padding: '8px',
+        borderRadius: '8px',
+        textAlign: 'center',
+        marginTop: '14px',
+        textTransform: 'uppercase',
+        fontWeight: 'bold',
+        letterSpacing: '0.4px'
     }
 };
 

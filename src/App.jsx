@@ -15,7 +15,7 @@ import ProfileSetup from './components/ProfileSetup';
 import Profile from './components/Profile';
 import StudentDashboard from './components/StudentDashboard';
 import GamifiedLearning from './components/GamifiedLearning';
-import BossBattle from './components/BossBattle';
+import MissionArena from './components/MissionArena';
 import LevelUpOverlay from './components/LevelUpOverlay';
 import AchievementToast from './components/AchievementToast';
 import SqlWorkbench from './components/SqlWorkbench';
@@ -401,7 +401,7 @@ print(f"Fibonacci Sequence: {result}")
               />
             ) : activeTab === 'Gamified Learning' ? (
               activeMission ? (
-                <BossBattle 
+                <MissionArena 
                   mission={activeMission} 
                   onExit={() => setActiveMission(null)} 
                 />
