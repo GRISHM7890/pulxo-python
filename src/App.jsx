@@ -25,6 +25,8 @@ import { auditCode } from './lib/logicGuard';
 import { ref, push, set } from 'firebase/database';
 import { useCollaboration } from './hooks/useCollaboration';
 import { useGamification } from './context/GamificationContext';
+import { Brain } from 'lucide-react';
+import AITutor from './components/AITutor';
 
 function App() {
   const { user, profile } = useAuth();
@@ -334,6 +336,7 @@ print(f"Fibonacci Sequence: {result}")
       onSavedProgramsToggle={() => { setActiveTab('Library'); setIsSidebarOpen(false); }}
       onDashboardToggle={() => { setActiveTab('Dashboard'); setIsSidebarOpen(false); }}
       onGamifyToggle={() => { setActiveTab('Gamified Learning'); setIsSidebarOpen(false); }}
+      onAITutorToggle={() => { setActiveTab('AITutor'); setIsSidebarOpen(false); }}
       onFileSelect={() => { setActiveTab('Editor'); setIsSidebarOpen(false); }}
       activeTab={activeTab}
       language={selectedLanguage}
@@ -403,6 +406,14 @@ print(f"Fibonacci Sequence: {result}")
               <Profile
                 onClose={() => setActiveTab('Editor')}
               />
+            ) : activeTab === 'AITutor' ? (
+              <AITutor
+                initialErrorCode={problems.length > 0 ? 'anomalies_detected' : ''}
+                activeProblems={problems}
+                onClose={() => setActiveTab('Editor')}
+                codeContext={code}
+                language={selectedLanguage}
+              />
             ) : activeTab === 'Dashboard' ? (
               <StudentDashboard
                 onClose={() => setActiveTab('Editor')}
@@ -437,7 +448,7 @@ print(f"Fibonacci Sequence: {result}")
                   />
                 ) : (
                   <>
-                    <div className="editor-section">
+                    <div className="editor-section" style={{ position: 'relative' }}>
                       <Editor
                         ref={editorRef}
                         isDarkMode={['dark', 'neon', 'glass'].includes(theme)}
@@ -446,6 +457,71 @@ print(f"Fibonacci Sequence: {result}")
                         onRun={handleRun}
                         language={selectedLanguage}
                       />
+                      
+                      {/* Floating Logic Buddy Orb */}
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          bottom: '24px',
+                          right: '24px',
+                          zIndex: 100,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'flex-end',
+                          pointerEvents: 'auto'
+                        }}
+                        onClick={() => {
+                          setActiveTab('AITutor');
+                        }}
+                      >
+                        {/* Help Bubble Prompt */}
+                        {problems.length > 0 && (
+                          <div style={{
+                            backgroundColor: 'var(--bg-secondary)',
+                            border: '1px solid var(--color-error)',
+                            borderRadius: '10px',
+                            padding: '6px 12px',
+                            fontSize: '11px',
+                            color: 'var(--text-primary)',
+                            marginBottom: '8px',
+                            boxShadow: 'var(--shadow-soft)',
+                            whiteSpace: 'nowrap',
+                            animation: 'pulse 2s infinite'
+                          }}>
+                            ⚡ Logical anomaly detected! Let's debug.
+                          </div>
+                        )}
+                        
+                        {/* Glowing Orb */}
+                        <div 
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            backgroundColor: problems.length > 0 ? 'var(--color-error)' : 'var(--color-success)',
+                            boxShadow: problems.length > 0 
+                              ? '0 0 15px var(--color-error), 0 0 5px var(--color-error)' 
+                              : '0 0 12px var(--color-success), 0 0 4px var(--color-success)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            animation: 'floatOrb 3s ease-in-out infinite',
+                            transition: 'all 0.3s ease'
+                          }}
+                          title="Ask AI Mentor for hints!"
+                        >
+                          <Brain size={18} color="#fff" />
+                        </div>
+                      </div>
+                      
+                      <style>{`
+                        @keyframes floatOrb {
+                          0% { transform: translateY(0px); }
+                          50% { transform: translateY(-6px); }
+                          100% { transform: translateY(0px); }
+                        }
+                      `}</style>
                     </div>
 
                     <div className="output-section">
