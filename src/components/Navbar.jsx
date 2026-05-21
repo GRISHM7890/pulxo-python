@@ -20,8 +20,8 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
     };
 
     return (
-        <nav style={styles.nav}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <nav className="navbar-responsive" style={styles.nav}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
                 {isMobile && (
                     <button className="btn-icon btn" onClick={onMenuToggle} style={{ padding: '4px' }}>
                         <Menu size={24} />
@@ -33,14 +33,15 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={styles.logoText}>PY COMPILER X</span>
-                        <span style={{ fontSize: '10px', color: 'var(--color-primary)', fontWeight: 'bold', marginLeft: '2px' }}>FOR CBSE 12TH</span>
+                        <span style={{ fontSize: '10px', color: 'var(--color-primary)', fontWeight: 'bold', marginLeft: '2px', whiteSpace: 'nowrap' }}>FOR CBSE 12TH</span>
                     </div>
                 </div>
             </div>
 
-            <div style={styles.languageSelector}>
+            <div className="language-selector-responsive" style={styles.languageSelector}>
                 <div style={styles.selectWrapper}>
                     <select
+                        className="select-responsive"
                         style={styles.select}
                         value={activeTab === 'Practice' ? 'Python' : (window.selectedLanguage || 'Python')}
                         onChange={(e) => window.onLanguageChange && window.onLanguageChange(e.target.value)}
@@ -48,7 +49,7 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                         <option value="Python">Python</option>
                         <option value="SQL">SQL (DBMS)</option>
                     </select>
-                    <ChevronDown size={14} style={styles.selectIcon} />
+                    <ChevronDown size={14} className="select-icon-responsive" style={styles.selectIcon} />
                 </div>
             </div>
 
@@ -57,24 +58,25 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                     {tabs.map((tab) => (
                         <button
                             key={tab}
+                            className="nav-tab-button"
                             style={{
                                 ...styles.tab,
                                 ...(activeTab === tab ? styles.activeTab : {})
                             }}
                             onClick={() => onTabChange(tab)}
                         >
-                            {tab}
+                            {tab === 'Gamified Learning' ? 'Gamify' : tab}
                         </button>
                     ))}
                 </div>
             )}
 
-            <div style={styles.actionsContainer}>
+            <div className="actions-container-responsive" style={styles.actionsContainer}>
                 {user ? (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                         {/* XP and Level Info */}
                         {!isMobile && gamification.level && (
-                            <div style={styles.xpContainer}>
+                            <div className="xp-container-responsive" style={styles.xpContainer}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '4px' }}>
                                     <span>LVL {gamification.level}</span>
                                     <span style={{ color: 'var(--color-primary)' }}>{gamification.rank}</span>
@@ -105,8 +107,8 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                                 )}
                             </div>
                         )}
-                        <div style={styles.userProfile}>
-                            <div style={styles.userInfo}>
+                        <div className="user-profile-responsive" style={styles.userProfile}>
+                            <div className="user-info-responsive" style={styles.userInfo}>
                                 <span style={styles.userName}>{profile?.name || user.email}</span>
                                 <span style={styles.userStatus}>Student</span>
                             </div>
@@ -130,7 +132,7 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                         onClick={onRun}
                         disabled={isRunning}
                     >
-                        <Play size={16} fill="currentColor" /> {!isMobile && (isRunning ? 'Running...' : 'Run')}
+                        <Play size={16} fill="currentColor" /> {!isMobile && (isRunning ? <span className="nav-btn-text">Running...</span> : <span className="nav-btn-text">Run</span>)}
                     </button>
                 )}
                 {!isMobile && (
@@ -139,7 +141,7 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                         style={{ padding: '6px 14px' }}
                         onClick={onSaveNote}
                     >
-                        <Save size={16} /> Save Note
+                        <Save size={16} /> <span className="nav-btn-text">Save Note</span>
                     </button>
                 )}
                 {/* Active Users Avatar Stack */}
@@ -187,13 +189,14 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                             if (!roomId) window.location.href = url;
                         }}
                     >
-                        <Share2 size={16} /> Share
+                        <Share2 size={16} /> <span className="nav-btn-text">Share</span>
                     </button>
                 )}
 
                 <div style={styles.divider}></div>
                 <div style={styles.selectWrapper}>
                     <select
+                        className="select-responsive"
                         style={{...styles.select, minWidth: isMobile ? '80px' : '100px'}}
                         value={theme}
                         onChange={handleThemeSelect}
@@ -204,7 +207,7 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                         <option value="glass" disabled={level < 5}>Glass {level < 5 ? '🔒(Lv5)' : ''}</option>
                         <option value="neon" disabled={level < 10}>Neon {level < 10 ? '🔒(Lv10)' : ''}</option>
                     </select>
-                    <ChevronDown size={14} style={styles.selectIcon} />
+                    <ChevronDown size={14} className="select-icon-responsive" style={styles.selectIcon} />
                 </div>
             </div>
             <style>{`
@@ -234,6 +237,52 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                 .streak-trigger-btn:hover {
                     background: var(--bg-tertiary) !important;
                 }
+
+                /* High-Fidelity Responsive Styling */
+                @media (max-width: 1440px) {
+                    .nav-btn-text {
+                        display: none !important;
+                    }
+                }
+                @media (max-width: 1280px) {
+                    .xp-container-responsive {
+                        display: none !important;
+                    }
+                    .user-info-responsive {
+                        display: none !important;
+                    }
+                    .user-profile-responsive {
+                        padding: 4px 8px !important;
+                        gap: 4px !important;
+                    }
+                    .nav-tab-button {
+                        padding: 6px 12px !important;
+                        font-size: 13px !important;
+                    }
+                }
+                @media (max-width: 1150px) {
+                    .nav-tab-button {
+                        padding: 4px 8px !important;
+                        font-size: 12px !important;
+                    }
+                    .navbar-responsive {
+                        padding: 0 12px !important;
+                    }
+                    .actions-container-responsive {
+                        gap: 8px !important;
+                    }
+                    .select-responsive {
+                        padding: 4px 24px 4px 10px !important;
+                        font-size: 12px !important;
+                        min-width: 80px !important;
+                    }
+                    .select-icon-responsive {
+                        right: 8px !important;
+                    }
+                    .language-selector-responsive {
+                        margin-left: 12px !important;
+                    }
+                }
             `}</style>
         </nav>
     );
@@ -255,6 +304,7 @@ const styles = {
         alignItems: 'center',
         gap: '12px',
         cursor: 'pointer',
+        flexShrink: 0,
     },
     logoIcon: {
         width: '36px',
@@ -271,6 +321,7 @@ const styles = {
         fontSize: '18px',
         letterSpacing: '-0.5px',
         color: 'var(--text-primary)',
+        whiteSpace: 'nowrap',
     },
     tabsContainer: {
         display: 'flex',
@@ -298,6 +349,7 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
+        flexShrink: 0,
     },
     divider: {
         width: '1px',
@@ -327,6 +379,7 @@ const styles = {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
+        flexShrink: 0,
     },
     userStatus: {
         fontSize: '10px',
@@ -338,6 +391,7 @@ const styles = {
         marginLeft: '24px',
         display: 'flex',
         alignItems: 'center',
+        flexShrink: 0,
     },
     selectWrapper: {
         position: 'relative',
