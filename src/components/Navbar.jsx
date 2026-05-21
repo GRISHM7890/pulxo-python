@@ -13,9 +13,6 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
 
     const handleThemeSelect = (e) => {
         const val = e.target.value;
-        if (val === 'ocean' && level < 3) return alert('Ocean theme unlocks at Level 3!');
-        if (val === 'glass' && level < 5) return alert('Glass theme unlocks at Level 5!');
-        if (val === 'neon' && level < 10) return alert('Neon theme unlocks at Level 10!');
         onThemeChange(val);
     };
 
@@ -201,11 +198,16 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                         value={theme}
                         onChange={handleThemeSelect}
                     >
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="ocean" disabled={level < 3}>Ocean {level < 3 ? '🔒(Lv3)' : ''}</option>
-                        <option value="glass" disabled={level < 5}>Glass {level < 5 ? '🔒(Lv5)' : ''}</option>
-                        <option value="neon" disabled={level < 10}>Neon {level < 10 ? '🔒(Lv10)' : ''}</option>
+                        <option value="light">☀️ Light</option>
+                        <option value="dark">🌙 Dark</option>
+                        <option value="ocean">🌊 Ocean</option>
+                        <option value="neon">⚡ Neon</option>
+                        <option value="glass">🔮 Glass</option>
+                        <option value="cyber">🤖 Cyber</option>
+                        <option value="sunset">🌇 Sunset</option>
+                        <option value="forest">🌲 Forest</option>
+                        <option value="matrix">📟 Matrix</option>
+                        <option value="dracula">🦇 Dracula</option>
                     </select>
                     <ChevronDown size={14} className="select-icon-responsive" style={styles.selectIcon} />
                 </div>
@@ -243,8 +245,6 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                     .nav-btn-text {
                         display: none !important;
                     }
-                }
-                @media (max-width: 1280px) {
                     .xp-container-responsive {
                         display: none !important;
                     }
@@ -255,12 +255,15 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                         padding: 4px 8px !important;
                         gap: 4px !important;
                     }
+                    .language-selector-responsive {
+                        margin-left: 12px !important;
+                    }
                     .nav-tab-button {
                         padding: 6px 12px !important;
                         font-size: 13px !important;
                     }
                 }
-                @media (max-width: 1150px) {
+                @media (max-width: 1200px) {
                     .nav-tab-button {
                         padding: 4px 8px !important;
                         font-size: 12px !important;
@@ -278,9 +281,6 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
                     }
                     .select-icon-responsive {
                         right: 8px !important;
-                    }
-                    .language-selector-responsive {
-                        margin-left: 12px !important;
                     }
                 }
             `}</style>

@@ -63,7 +63,7 @@
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
 }
 
-/* Neon Theme Variables */
+/* Neon Theme Variables (Cyberpunk Neon) */
 .theme-neon {
   --bg-primary: #0a0a0c;
   --bg-secondary: #121217;
@@ -86,7 +86,7 @@
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
 }
 
-/* Ocean Theme Variables */
+/* Ocean Theme Variables (Deep Ocean Breeze) */
 .theme-ocean {
   --bg-primary: #f0f8ff;
   --bg-secondary: #ffffff;
@@ -109,7 +109,7 @@
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
 }
 
-/* Glass Theme Variables */
+/* Glass Theme Variables (Holographic Glassmorphic) */
 .theme-glass {
   --bg-primary: #e8eaed;
   --bg-secondary: rgba(255, 255, 255, 0.6);
@@ -132,6 +132,121 @@
   --shadow-inner: inset 0 2px 4px 0 rgba(255, 255, 255, 0.5);
   
   --backdrop-blur: blur(16px);
+}
+
+/* Cyber Theme Variables (Cyberpunk Gold & Purple) */
+.theme-cyber {
+  --bg-primary: #120a1c;
+  --bg-secondary: #1a0f28;
+  --bg-tertiary: #0b0612;
+  --bg-hover: #26173a;
+
+  --text-primary: #ffd700;
+  --text-secondary: #f0c0ff;
+  --text-muted: #8b6e9e;
+
+  --border-color: #ffd70044;
+
+  --color-primary: #ffd700;
+  --color-primary-hover: #ffea70;
+  --color-success: #00ffcc;
+  --color-success-hover: #33ffdb;
+  --color-error: #ff3366;
+
+  --shadow-soft: 0 4px 20px -2px rgba(255, 215, 0, 0.2), 0 0 10px rgba(255, 215, 0, 0.1);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Sunset Theme Variables (Warm Solar Flare) */
+.theme-sunset {
+  --bg-primary: #1a0f12;
+  --bg-secondary: #261418;
+  --bg-tertiary: #0f0809;
+  --bg-hover: #361d22;
+
+  --text-primary: #ff7e5f;
+  --text-secondary: #feb47b;
+  --text-muted: #8c5a64;
+
+  --border-color: #ff7e5f44;
+
+  --color-primary: #ff7e5f;
+  --color-primary-hover: #feb47b;
+  --color-success: #10b981;
+  --color-success-hover: #34d399;
+  --color-error: #ef4444;
+
+  --shadow-soft: 0 4px 20px -2px rgba(255, 126, 95, 0.2);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Forest Theme Variables (Emerald Leaf & Moss) */
+.theme-forest {
+  --bg-primary: #0a1410;
+  --bg-secondary: #0f221a;
+  --bg-tertiary: #050b08;
+  --bg-hover: #173427;
+
+  --text-primary: #a7f3d0;
+  --text-secondary: #34d399;
+  --text-muted: #4b6b5d;
+
+  --border-color: #05966944;
+
+  --color-primary: #10b981;
+  --color-primary-hover: #34d399;
+  --color-success: #34d399;
+  --color-success-hover: #a7f3d0;
+  --color-error: #f87171;
+
+  --shadow-soft: 0 4px 20px -2px rgba(16, 185, 129, 0.2);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Matrix Theme Variables (Terminal Hacker Green) */
+.theme-matrix {
+  --bg-primary: #000000;
+  --bg-secondary: #0d0d0d;
+  --bg-tertiary: #050505;
+  --bg-hover: #1a1a1a;
+
+  --text-primary: #00ff00;
+  --text-secondary: #33cc33;
+  --text-muted: #1f7a1f;
+
+  --border-color: #00ff0033;
+
+  --color-primary: #00ff00;
+  --color-primary-hover: #33ff33;
+  --color-success: #00ff00;
+  --color-success-hover: #33ff33;
+  --color-error: #ff0033;
+
+  --shadow-soft: 0 4px 20px -2px rgba(0, 255, 0, 0.2);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Dracula Theme Variables (Vampire Violet & Pink) */
+.theme-dracula {
+  --bg-primary: #1e1f29;
+  --bg-secondary: #282a36;
+  --bg-tertiary: #191a21;
+  --bg-hover: #343746;
+
+  --text-primary: #f8f8f2;
+  --text-secondary: #ff79c6;
+  --text-muted: #6272a4;
+
+  --border-color: #44475a;
+
+  --color-primary: #bd93f9;
+  --color-primary-hover: #ff79c6;
+  --color-success: #50fa7b;
+  --color-success-hover: #8be9fd;
+  --color-error: #ff5555;
+
+  --shadow-soft: 0 4px 20px -2px rgba(189, 147, 249, 0.2);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
 }
 
 * {
