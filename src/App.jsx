@@ -16,6 +16,7 @@ import Profile from './components/Profile';
 import StudentDashboard from './components/StudentDashboard';
 import GamifiedLearning from './components/GamifiedLearning';
 import MissionArena from './components/MissionArena';
+import BossBattle from './components/BossBattle';
 import LevelUpOverlay from './components/LevelUpOverlay';
 import AchievementToast from './components/AchievementToast';
 import SqlWorkbench from './components/SqlWorkbench';
@@ -36,6 +37,7 @@ function App() {
   const gamification = useGamification();
   const [activeTab, setActiveTab] = useState('Editor');
   const [activeMission, setActiveMission] = useState(null);
+  const [activeBoss, setActiveBoss] = useState(null);
   const [code, setCode] = useState(`# Welcome to Py Compiler X
 # Write your Python code here
 
@@ -400,14 +402,20 @@ print(f"Fibonacci Sequence: {result}")
                 onClose={() => setActiveTab('Editor')}
               />
             ) : activeTab === 'Gamified Learning' ? (
-              activeMission ? (
+              activeBoss ? (
+                <BossBattle 
+                  boss={activeBoss} 
+                  onExit={() => setActiveBoss(null)} 
+                />
+              ) : activeMission ? (
                 <MissionArena 
                   mission={activeMission} 
                   onExit={() => setActiveMission(null)} 
                 />
               ) : (
                 <GamifiedLearning 
-                  onStartBossBattle={(mission) => setActiveMission(mission)} 
+                  onStartMission={(mission) => setActiveMission(mission)}
+                  onStartBoss={(boss) => setActiveBoss(boss)} 
                 />
               )
             ) : (

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useGamification } from '../context/GamificationContext';
-import { Trophy, Star, Target, Flame, CheckCircle2, Lock, Play, Filter, Sparkles, Code2, Terminal, AlertCircle } from 'lucide-react';
+import { Trophy, Star, Target, Flame, CheckCircle2, Lock, Play, Filter, Sparkles, Code2, Terminal, AlertCircle, Skull, ShieldAlert } from 'lucide-react';
 import { MISSIONS, DIFFICULTY_LEVELS, MISSION_TYPES } from '../lib/missionData';
+import { BOSS_DATA } from './BossBattle';
 
-const GamifiedLearning = ({ onStartBossBattle }) => {
+const GamifiedLearning = ({ onStartMission, onStartBoss }) => {
     const gamification = useGamification() || {};
     const [subTab, setSubTab] = useState('missions'); // 'map', 'missions'
 
@@ -16,6 +17,24 @@ const GamifiedLearning = ({ onStartBossBattle }) => {
 
     const userLevel = gamification.level || 1;
     const completedMissions = gamification.completedMissions || {};
+
+    const isBossUnlocked = (bossId) => {
+        if (bossId === 'syntax_hydra') return true;
+        if (bossId === 'loop_titan') return userLevel >= 2;
+        if (bossId === 'bug_overlord') return userLevel >= 3;
+        if (bossId === 'memory_eater') return userLevel >= 3;
+        if (bossId === 'exception_king') return userLevel >= 5;
+        return false;
+    };
+
+    const getBossLevelRequired = (bossId) => {
+        if (bossId === 'syntax_hydra') return 1;
+        if (bossId === 'loop_titan') return 2;
+        if (bossId === 'bug_overlord') return 3;
+        if (bossId === 'memory_eater') return 3;
+        if (bossId === 'exception_king') return 5;
+        return 1;
+    };
 
     // Helper to evaluate if a static mission is unlocked
     const isMissionUnlocked = (m) => {
@@ -109,6 +128,12 @@ const GamifiedLearning = ({ onStartBossBattle }) => {
                     >
                         <Target size={14} /> System Map (Skill Tree)
                     </button>
+                    <button
+                        style={subTab === 'bosses' ? styles.navTabActive : styles.navTab}
+                        onClick={() => setSubTab('bosses')}
+                    >
+                        <Flame size={14} /> 🌋 Boss Arena
+                    </button>
                 </div>
             </div>
 
@@ -150,8 +175,8 @@ const GamifiedLearning = ({ onStartBossBattle }) => {
                                                 className={`btn ${node.isBoss ? 'btn-error' : 'btn-primary'}`}
                                                 style={{ marginTop: '14px', width: '100%', padding: '6px 12px', fontSize: '12px' }}
                                                 onClick={() => {
-                                                    if (matchingFullMission && onStartBossBattle) {
-                                                        onStartBossBattle(matchingFullMission);
+                                                    if (matchingFullMission && onStartMission) {
+                                                        onStartMission(matchingFullMission);
                                                     }
                                                 }}
                                             >
@@ -308,7 +333,7 @@ const GamifiedLearning = ({ onStartBossBattle }) => {
                                             <button
                                                 className={`btn ${m.difficulty === 'legendary' ? 'btn-error' : 'btn-primary'}`}
                                                 style={{ marginTop: '14px', width: '100%', padding: '8px', fontSize: '13px', fontWeight: 'bold' }}
-                                                onClick={() => onStartBossBattle && onStartBossBattle(m)}
+                                                onClick={() => onStartMission && onStartMission(m)}
                                             >
                                                 <Play size={12} /> {isCompleted ? 'Replay Mission' : m.difficulty === 'legendary' ? 'Engage Overlord' : 'Deploy Command'}
                                             </button>
@@ -322,6 +347,167 @@ const GamifiedLearning = ({ onStartBossBattle }) => {
                             })}
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* BOSS ARENA VIEW */}
+            {subTab === 'bosses' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h2 style={styles.sectionTitle}><Skull size={18} /> Hostile Core Mainframes</h2>
+                            <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+                                Slay hostile core algorithms via logic validation to secure Matrix system permissions.
+                            </p>
+                        </div>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            WASM Engine: <span style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>ONLINE</span>
+                        </span>
+                    </div>
+
+                    <div style={styles.bossesGrid}>
+                        {Object.values(BOSS_DATA).map((boss) => {
+                            const unlocked = isBossUnlocked(boss.id);
+                            const completed = completedMissions[boss.id];
+                            const reqLevel = getBossLevelRequired(boss.id);
+                            
+                            return (
+                                <div
+                                    key={boss.id}
+                                    style={{
+                                        ...styles.bossCard,
+                                        borderColor: completed ? 'var(--color-success)' : unlocked ? boss.color : 'var(--border-color)',
+                                        opacity: unlocked ? 1 : 0.6,
+                                        boxShadow: unlocked 
+                                            ? completed
+                                                ? '0 0 25px rgba(16, 185, 129, 0.15)' 
+                                                : `0 0 25px ${boss.color}15`
+                                            : 'none'
+                                    }}
+                                    className={`boss-card-interactive ${unlocked ? 'unlocked' : 'locked'} ${completed ? 'completed' : ''}`}
+                                >
+                                    {/* Locked Overlay */}
+                                    {!unlocked && (
+                                        <div style={styles.bossLockedOverlay}>
+                                            <Lock size={32} color="var(--text-muted)" style={{ marginBottom: '8px' }} />
+                                            <span style={{ fontSize: '11px', fontWeight: 'bold', letterSpacing: '0.8px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                                                Restricted Access
+                                            </span>
+                                            <span style={{ fontSize: '12px', color: 'var(--color-error)', fontWeight: 'bold', marginTop: '4px' }}>
+                                                Requires Level {reqLevel}
+                                            </span>
+                                        </div>
+                                    )}
+
+                                    {/* Boss Header */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                        <span style={{
+                                            fontSize: '9px',
+                                            fontWeight: '800',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.6px',
+                                            border: `1px solid ${completed ? 'var(--color-success)' : boss.color}`,
+                                            color: completed ? 'var(--color-success)' : boss.color,
+                                            padding: '2px 8px',
+                                            borderRadius: '10px',
+                                            backgroundColor: 'rgba(0,0,0,0.3)'
+                                        }}>
+                                            {boss.difficulty}
+                                        </span>
+                                        {completed ? (
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-success)', fontSize: '11px', fontWeight: 'bold', textShadow: '0 0 8px rgba(16, 185, 129, 0.3)' }}>
+                                                🛡️ Neutralized
+                                            </span>
+                                        ) : unlocked ? (
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--color-error)', fontSize: '11px', fontWeight: 'bold', textShadow: `0 0 8px ${boss.color}30` }}>
+                                                🔴 ACTIVE THREAT
+                                            </span>
+                                        ) : (
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontSize: '11px' }}>
+                                                <Lock size={12} /> RESTRICTED
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Glitching SVG Avatar */}
+                                    <div style={{
+                                        width: '100%',
+                                        height: '140px',
+                                        backgroundColor: '#050508',
+                                        border: `1px solid ${completed ? 'rgba(16, 185, 129, 0.2)' : unlocked ? `${boss.color}25` : 'var(--border-color)'}`,
+                                        borderRadius: '12px',
+                                        padding: '12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginBottom: '16px',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        boxShadow: unlocked ? `inset 0 0 15px ${boss.color}05` : 'none'
+                                    }}>
+                                        <div style={{ width: '90px', height: '90px', filter: unlocked ? `drop-shadow(0 0 12px ${boss.color}30)` : 'none' }}>
+                                            {boss.avatarSvg}
+                                        </div>
+                                    </div>
+
+                                    {/* Boss Title & Description */}
+                                    <h3 style={{ ...styles.cardHeaderTitle, color: completed ? 'var(--color-success)' : '#fff' }}>{boss.title}</h3>
+                                    
+                                    <div style={{ display: 'flex', gap: '12px', marginBottom: '14px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                        <div>Threat: <strong style={{ color: completed ? 'var(--color-success)' : boss.color }}>{boss.threatLevel}</strong></div>
+                                        <div>Waves: <strong>{boss.waves.length} Stages</strong></div>
+                                    </div>
+
+                                    <p style={{ ...styles.cardDescText, fontSize: '11.5px', marginBottom: '16px' }}>
+                                        {boss.waves[0]?.briefing || 'Mainframe defense systems online. Prepare coding logic.'}
+                                    </p>
+
+                                    {/* Divider and XP */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                                            Core Combat
+                                        </span>
+                                        <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 'bold' }}>
+                                            +{boss.xp} XP Bounty
+                                        </span>
+                                    </div>
+
+                                    {/* Action button */}
+                                    {unlocked ? (
+                                        <button
+                                            className={`btn ${completed ? 'btn-success' : 'btn-error'}`}
+                                            style={{
+                                                marginTop: '14px',
+                                                width: '100%',
+                                                padding: '10px',
+                                                fontSize: '13px',
+                                                fontWeight: 'bold',
+                                                letterSpacing: '0.5px',
+                                                textTransform: 'uppercase',
+                                                backgroundColor: completed ? 'rgba(16, 185, 129, 0.1)' : boss.color,
+                                                borderColor: completed ? 'var(--color-success)' : boss.color,
+                                                color: completed ? 'var(--color-success)' : '#fff',
+                                                boxShadow: completed ? 'none' : `0 0 15px ${boss.color}35`
+                                            }}
+                                            onClick={() => onStartBoss && onStartBoss(boss)}
+                                        >
+                                            <Play size={12} style={{ marginRight: '4px' }} />
+                                            {completed ? 'Re-enter Arena' : 'Engage Core'}
+                                        </button>
+                                    ) : (
+                                        <div style={{
+                                            ...styles.lockedHintBlock,
+                                            color: 'var(--color-error)',
+                                            borderColor: 'rgba(239, 68, 68, 0.15)',
+                                            backgroundColor: 'rgba(239, 68, 68, 0.02)'
+                                        }}>
+                                            LOCKED: LEVEL {reqLevel} REQUIRED
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
 
@@ -366,6 +552,15 @@ const GamifiedLearning = ({ onStartBossBattle }) => {
                 .mission-card-interactive.completed:hover {
                     box-shadow: 0 8px 24px rgba(16, 185, 129, 0.08);
                     border-color: rgba(16, 185, 129, 0.3);
+                }
+                .boss-card-interactive {
+                    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+                }
+                .boss-card-interactive.unlocked:hover {
+                    transform: translateY(-6px);
+                }
+                .boss-card-interactive.completed {
+                    background: linear-gradient(145deg, rgba(16, 185, 129, 0.02), #09090e) !important;
                 }
             `}</style>
         </div>
@@ -616,6 +811,39 @@ const styles = {
         textTransform: 'uppercase',
         fontWeight: 'bold',
         letterSpacing: '0.4px'
+    },
+    bossesGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+        gap: '24px'
+    },
+    bossCard: {
+        backgroundColor: '#09090e',
+        borderRadius: '16px',
+        border: '1px solid var(--border-color)',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: 'var(--shadow-soft)',
+        position: 'relative',
+        transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)'
+    },
+    bossLockedOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(5, 5, 8, 0.85)',
+        backdropFilter: 'blur(4px)',
+        borderRadius: '16px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 5,
+        border: '1px dashed var(--border-color)',
+        pointerEvents: 'none'
     }
 };
 
