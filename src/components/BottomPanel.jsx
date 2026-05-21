@@ -3,6 +3,7 @@ import { Terminal, AlignLeft, XCircle, Clock } from 'lucide-react';
 
 const BottomPanel = ({ output = [], isRunning, executionTime = 0, onJumpToLine, onClear, problems = [], onApplyFix }) => {
     const [activeTab, setActiveTab] = useState('output');
+    const [coachingModeEnabled, setCoachingModeEnabled] = useState(true);
     const scrollRef = useRef(null);
 
     useEffect(() => {
@@ -113,36 +114,129 @@ const BottomPanel = ({ output = [], isRunning, executionTime = 0, onJumpToLine, 
 
 
                 {activeTab === 'problems' && (
-                    <div style={styles.problemsList}>
+                    <div style={styles.problemsContainer}>
+                        {/* Glowing Glassmorphic Coach Switcher */}
+                        <div style={styles.coachHeader}>
+                            <div style={styles.coachInfo}>
+                                <span style={styles.coachAvatar}>🤖</span>
+                                <div style={styles.coachText}>
+                                    <span style={styles.coachTitle}>PULXO AI Socratic Coach</span>
+                                    <span style={styles.coachSubtitle}>Translating compiler errors into conceptual guides</span>
+                                </div>
+                            </div>
+                            <div style={styles.toggleWrapper}>
+                                <span style={{ ...styles.toggleLabel, color: coachingModeEnabled ? 'var(--color-primary)' : 'var(--text-muted)' }}>
+                                    🚀 Beginner Coaching
+                                </span>
+                                <button 
+                                    onClick={() => setCoachingModeEnabled(!coachingModeEnabled)}
+                                    style={{
+                                        ...styles.toggleSwitch,
+                                        backgroundColor: coachingModeEnabled ? 'var(--color-primary)' : 'var(--bg-hover)',
+                                    }}
+                                >
+                                    <div style={{
+                                        ...styles.toggleCircle,
+                                        transform: coachingModeEnabled ? 'translateX(18px)' : 'translateX(2px)',
+                                    }} />
+                                </button>
+                            </div>
+                        </div>
+
                         {problems.length === 0 ? (
                             <div style={styles.emptyState}>
                                 <XCircle size={32} color="var(--color-success)" style={{ opacity: 0.5, marginBottom: '8px' }} />
                                 <p>No problems have been detected in the workspace.</p>
                             </div>
                         ) : (
-                            problems.map((prob, idx) => (
-                                <div key={idx} style={styles.problemItem}>
-                                    <div style={styles.problemHeader} onClick={() => onJumpToLine(prob.line)}>
-                                        <XCircle size={14} color={prob.type === 'error' ? 'var(--color-error)' : '#f59e0b'} />
-                                        <span style={styles.problemMessage}>{prob.message}</span>
-                                        <span style={styles.problemLine}>Line {prob.line}</span>
-                                    </div>
-                                    {prob.fix && (
-                                        <div style={styles.problemFixRow}>
-                                            <div style={styles.fixPreview}>
-                                                <span style={styles.fixLabel}>Suggested Fix:</span>
-                                                <code style={styles.fixCode}>{prob.fix}</code>
+                            <div style={styles.problemsList}>
+                                {problems.map((prob, idx) => {
+                                    const hasCoaching = prob.coaching;
+                                    
+                                    if (coachingModeEnabled && hasCoaching) {
+                                        return (
+                                            <div key={idx} style={styles.coachingCard}>
+                                                <div style={styles.coachingHeader} onClick={() => onJumpToLine(prob.line)}>
+                                                    <span style={{
+                                                        ...styles.badgeCategory,
+                                                        borderColor: prob.type === 'error' ? 'var(--color-error)' : '#f59e0b',
+                                                        color: prob.type === 'error' ? 'var(--color-error)' : '#f59e0b',
+                                                    }}>
+                                                        {prob.type.toUpperCase()}: LINE {prob.line}
+                                                    </span>
+                                                    <span style={styles.problemLine}>Jump to line</span>
+                                                </div>
+
+                                                <div style={styles.coachingBody}>
+                                                    {/* Warm Encouragement */}
+                                                    <p style={styles.coachingEncouragement}>
+                                                        ✨ {prob.coaching.encouragement || "Let's work through this step-by-step!"}
+                                                    </p>
+
+                                                    {/* Metaphor / Everyday Analogy */}
+                                                    <div style={styles.coachingAnalogyBox}>
+                                                        <span style={styles.emojiIndicator}>💡</span>
+                                                        <div style={styles.analogyTextWrapper}>
+                                                            <strong style={styles.analogyTitle}>The Everyday Analogy:</strong>
+                                                            <p style={styles.analogyParagraph}>{prob.coaching.analogy}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Socratic Hint */}
+                                                    <div style={styles.coachingHintBox}>
+                                                        <span style={styles.emojiIndicator}>🔍</span>
+                                                        <div style={styles.hintTextWrapper}>
+                                                            <strong style={styles.hintTitle}>Socratic Thinking Step:</strong>
+                                                            <p style={styles.hintParagraph}>{prob.coaching.hint}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Action Bar */}
+                                                {prob.fix && (
+                                                    <div style={styles.coachingFixRow}>
+                                                        <div style={styles.fixPreview}>
+                                                            <span style={styles.fixLabel}>Suggested Fix Preview</span>
+                                                            <code style={styles.fixCode}>{prob.fix}</code>
+                                                        </div>
+                                                        <button
+                                                            style={styles.applyFixBtnCoaching}
+                                                            onClick={() => onApplyFix(prob)}
+                                                        >
+                                                            🛠️ Apply Fix
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <button
-                                                style={styles.applyFixBtn}
-                                                onClick={() => onApplyFix(prob)}
-                                            >
-                                                Apply Fix
-                                            </button>
+                                        );
+                                    }
+
+                                    // Fallback / Standard technical mode
+                                    return (
+                                        <div key={idx} style={styles.problemItem}>
+                                            <div style={styles.problemHeader} onClick={() => onJumpToLine(prob.line)}>
+                                                <XCircle size={14} color={prob.type === 'error' ? 'var(--color-error)' : '#f59e0b'} />
+                                                <span style={styles.problemMessage}>{prob.message}</span>
+                                                <span style={styles.problemLine}>Line {prob.line}</span>
+                                            </div>
+                                            {prob.fix && (
+                                                <div style={styles.problemFixRow}>
+                                                    <div style={styles.fixPreview}>
+                                                        <span style={styles.fixLabel}>Suggested Fix:</span>
+                                                        <code style={styles.fixCode}>{prob.fix}</code>
+                                                    </div>
+                                                    <button
+                                                        style={styles.applyFixBtn}
+                                                        onClick={() => onApplyFix(prob)}
+                                                    >
+                                                        Apply Fix
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                            ))
+                                    );
+                                })}
+                            </div>
                         )}
                     </div>
                 )}
@@ -389,6 +483,190 @@ const styles = {
         padding: '8px 12px',
         borderBottom: '1px solid var(--border-color)',
         fontFamily: 'var(--font-mono)',
+    },
+    problemsContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+    },
+    coachHeader: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 14px',
+        backgroundColor: 'rgba(59, 130, 246, 0.06)',
+        borderRadius: '10px',
+        border: '1px solid rgba(59, 130, 246, 0.15)',
+        marginBottom: '6px',
+        backdropFilter: 'blur(8px)',
+    },
+    coachInfo: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+    },
+    coachAvatar: {
+        fontSize: '22px',
+        animation: 'avatarFloat 2s ease-in-out infinite',
+        display: 'inline-block',
+    },
+    coachText: {
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    coachTitle: {
+        fontSize: '13px',
+        fontWeight: '700',
+        color: 'var(--color-primary)',
+        letterSpacing: '0.5px',
+    },
+    coachSubtitle: {
+        fontSize: '11px',
+        color: 'var(--text-muted)',
+    },
+    toggleWrapper: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+    },
+    toggleLabel: {
+        fontSize: '12px',
+        fontWeight: '600',
+    },
+    toggleSwitch: {
+        width: '38px',
+        height: '20px',
+        borderRadius: '10px',
+        border: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        cursor: 'pointer',
+        padding: '0',
+        position: 'relative',
+        transition: 'all 0.3s ease',
+    },
+    toggleCircle: {
+        width: '16px',
+        height: '16px',
+        borderRadius: '50%',
+        backgroundColor: '#fff',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+    },
+    coachingCard: {
+        padding: '16px',
+        backgroundColor: 'var(--bg-tertiary)',
+        borderRadius: '12px',
+        borderLeft: '4px solid var(--color-primary)',
+        borderTop: '1px solid var(--border-color)',
+        borderRight: '1px solid var(--border-color)',
+        borderBottom: '1px solid var(--border-color)',
+        boxShadow: 'var(--shadow-soft)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px',
+        transition: 'all 0.2s ease',
+    },
+    coachingHeader: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        cursor: 'pointer',
+        borderBottom: '1px dashed var(--border-color)',
+        paddingBottom: '8px',
+    },
+    badgeCategory: {
+        fontSize: '10px',
+        fontWeight: '800',
+        padding: '3px 8px',
+        borderRadius: '6px',
+        border: '1px solid',
+        letterSpacing: '1px',
+    },
+    coachingBody: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
+    },
+    coachingEncouragement: {
+        fontSize: '13px',
+        fontWeight: '600',
+        color: 'var(--text-primary)',
+        margin: '0',
+        fontStyle: 'italic',
+    },
+    coachingAnalogyBox: {
+        display: 'flex',
+        gap: '10px',
+        backgroundColor: 'rgba(59, 130, 246, 0.03)',
+        border: '1px solid rgba(59, 130, 246, 0.08)',
+        borderRadius: '8px',
+        padding: '10px 12px',
+    },
+    coachingHintBox: {
+        display: 'flex',
+        gap: '10px',
+        backgroundColor: 'rgba(16, 185, 129, 0.03)',
+        border: '1px solid rgba(16, 185, 129, 0.08)',
+        borderRadius: '8px',
+        padding: '10px 12px',
+    },
+    emojiIndicator: {
+        fontSize: '18px',
+        marginTop: '2px',
+    },
+    analogyTextWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px',
+    },
+    analogyTitle: {
+        fontSize: '12px',
+        color: 'var(--color-primary)',
+    },
+    analogyParagraph: {
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        margin: '0',
+        lineHeight: '1.5',
+    },
+    hintTextWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '2px',
+    },
+    hintTitle: {
+        fontSize: '12px',
+        color: '#10b981',
+    },
+    hintParagraph: {
+        fontSize: '12px',
+        color: 'var(--text-secondary)',
+        margin: '0',
+        lineHeight: '1.5',
+    },
+    coachingFixRow: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '16px',
+        padding: '10px 12px',
+        backgroundColor: 'rgba(59, 130, 246, 0.04)',
+        borderRadius: '8px',
+        border: '1px dashed rgba(59, 130, 246, 0.25)',
+        marginTop: '4px',
+    },
+    applyFixBtnCoaching: {
+        padding: '6px 14px',
+        backgroundColor: 'var(--color-primary)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '6px',
+        fontSize: '12px',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: '0 2px 6px rgba(59, 130, 246, 0.25)',
+        transition: 'all 0.2s',
     }
 };
 
@@ -398,6 +676,11 @@ const animations = `
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+@keyframes avatarFloat {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-4px); }
+    100% { transform: translateY(0px); }
 }
 `;
 

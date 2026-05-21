@@ -49,23 +49,49 @@ function myCompletions(context, language = 'Python', schema = []) {
     };
 }
 
-// Custom simple syntax error linter
-const pythonLinter = linter((view) => {
+// Custom simple syntax error and logic linter
+const getProblemsLinter = (problems, language) => linter((view) => {
     let diagnostics = [];
-    syntaxTree(view.state).cursor().iterate(node => {
-        if (node.type.isError) {
-            diagnostics.push({
-                from: node.from,
-                to: node.to,
-                severity: "error",
-                message: "Syntax Error",
-            });
+    
+    // Parse structural CodeMirror syntax errors
+    if (language === 'Python') {
+        syntaxTree(view.state).cursor().iterate(node => {
+            if (node.type.isError) {
+                diagnostics.push({
+                    from: node.from,
+                    to: node.to,
+                    severity: "error",
+                    message: "Syntax Error: Malformed code block structure.",
+                });
+            }
+        });
+    }
+
+    // Blend our custom real-time analyzed problems
+    problems.forEach(prob => {
+        try {
+            const lineNum = Math.max(1, Math.min(prob.line, view.state.doc.lines));
+            const line = view.state.doc.line(lineNum);
+            
+            // Check for existing diagnostic overlap on the exact line start
+            const overlap = diagnostics.some(d => d.from === line.from);
+            if (!overlap) {
+                diagnostics.push({
+                    from: line.from,
+                    to: line.to,
+                    severity: prob.type === 'error' ? 'error' : 'warning',
+                    message: prob.message,
+                });
+            }
+        } catch (e) {
+            // Keep going if line query boundary bounds out
         }
     });
+
     return diagnostics;
 });
 
-const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Python' }, ref) => {
+const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Python', problems = [] }, ref) => {
     const editorViewRef = useRef(null);
     const [schema, setSchema] = useState([]);
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -123,6 +149,9 @@ const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Pytho
         { key: "Mod-Enter", run: runAction, preventDefault: true },
     ]);
 
+    // Create the dynamic problem linter instance
+    const problemsLinter = getProblemsLinter(problems, language);
+
     return (
         <div style={styles.container} className={isFullscreen ? 'editor-fullscreen' : ''}>
             <div style={styles.header}>
@@ -157,7 +186,7 @@ const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Pytho
                         language === 'SQL' ? sql() : python(),
                         autocompletion({ override: [(ctx) => myCompletions(ctx, language, schema)] }),
                         lintGutter(),
-                        ...(language === 'SQL' ? [] : [pythonLinter]),
+                        ...(language === 'SQL' ? [] : [problemsLinter]),
                         customKeybinds,
                         indentUnit.of("    ")
                     ]}
@@ -229,6 +258,17 @@ const Editor = forwardRef(({ isDarkMode, code, setCode, onRun, language = 'Pytho
                 .cm-lintRange-error {
                     background-image: none !important;
                     border-bottom: 2px wavy var(--color-error) !important;
+                }
+                .cm-diagnostic-warning {
+                    border-left: 3px solid #f59e0b !important;
+                    background-color: rgba(245, 158, 11, 0.08) !important;
+                }
+                .cm-lintRange-warning {
+                    background-image: none !important;
+                    border-bottom: 2px wavy #f59e0b !important;
+                }
+                .cm-lint-marker-warning {
+                    color: #f59e0b !important;
                 }
                 .cm-lineNumbers .cm-gutterElement {
                     padding: 0 8px 0 12px !important;

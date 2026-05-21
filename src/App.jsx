@@ -21,7 +21,7 @@ import LevelUpOverlay from './components/LevelUpOverlay';
 import AchievementToast from './components/AchievementToast';
 import SqlWorkbench from './components/SqlWorkbench';
 import SaveModal from './components/SaveModal';
-import { auditCode } from './lib/logicGuard';
+import { auditCode, auditCodeLocally } from './lib/logicGuard';
 import { ref, push, set } from 'firebase/database';
 import { useCollaboration } from './hooks/useCollaboration';
 import { useGamification } from './context/GamificationContext';
@@ -98,6 +98,54 @@ print(f"Fibonacci Sequence: {result}")
       else document.documentElement.classList.add(`theme-${theme}`);
     }
   }, [theme]);
+
+  // Real-Time Code Analysis debounced orchestrator
+  useEffect(() => {
+    if (!code || code.length < 5) {
+      setProblems([]);
+      return;
+    }
+
+    // 1. Instant Local Static Guard (0ms latency)
+    const localProblems = auditCodeLocally(code, selectedLanguage);
+    setProblems(localProblems);
+
+    // Skip deep Gemini scan for SQL queries
+    if (selectedLanguage === 'SQL') return;
+
+    // 2. Debounced Semantic AI Logic Auditor (1500ms delay)
+    const typingDebounce = setTimeout(async () => {
+      try {
+        const aiProblems = await auditCode(code, selectedLanguage);
+        if (aiProblems && aiProblems.length > 0) {
+          setProblems(prev => {
+            const merged = [...prev];
+            aiProblems.forEach(aiProb => {
+              // Deduplicate by line position and exact/approximate similarity
+              const isDuplicate = merged.some(localProb => 
+                localProb.line === aiProb.line && 
+                (localProb.id === aiProb.id || Math.abs(localProb.line - aiProb.line) === 0)
+              );
+              if (!isDuplicate) {
+                merged.push(aiProb);
+              } else {
+                // If local match exists, upgrade its details if AI returns richer data
+                const idx = merged.findIndex(p => p.line === aiProb.line);
+                if (idx !== -1 && aiProb.coaching) {
+                  merged[idx] = { ...merged[idx], ...aiProb };
+                }
+              }
+            });
+            return merged.sort((a, b) => a.line - b.line);
+          });
+        }
+      } catch (err) {
+        console.error("Real-time semantic analysis failed:", err);
+      }
+    }, 1500);
+
+    return () => clearTimeout(typingDebounce);
+  }, [code, selectedLanguage]);
 
   // Connect Engines to terminal state
   useEffect(() => {
@@ -456,6 +504,7 @@ print(f"Fibonacci Sequence: {result}")
                         setCode={handleCodeChange}
                         onRun={handleRun}
                         language={selectedLanguage}
+                        problems={problems}
                       />
                       
                       {/* Floating Logic Buddy Orb */}
