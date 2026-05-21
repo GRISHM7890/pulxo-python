@@ -9,10 +9,19 @@ import { PRACTICE_TOPICS, PROBLEMS } from '../data/problems';
 import { db } from '../lib/firebase';
 import { ref, onValue, set, push, serverTimestamp } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
-const Practice = ({ onClose }) => {
+const Practice = ({ onClose, initialTopic, initialProblemIndex }) => {
     const { user } = useAuth();
-    const [selectedTopic, setSelectedTopic] = useState(PRACTICE_TOPICS[0]);
-    const [selectedProblemIndex, setSelectedProblemIndex] = useState(0);
+    const [selectedTopic, setSelectedTopic] = useState(initialTopic || PRACTICE_TOPICS[0]);
+    const [selectedProblemIndex, setSelectedProblemIndex] = useState(initialProblemIndex !== undefined ? initialProblemIndex : 0);
+
+    useEffect(() => {
+        if (initialTopic) {
+            setSelectedTopic(initialTopic);
+        }
+        if (initialProblemIndex !== undefined) {
+            setSelectedProblemIndex(initialProblemIndex);
+        }
+    }, [initialTopic, initialProblemIndex]);
     const [code, setCode] = useState('');
     const [isRunning, setIsRunning] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);

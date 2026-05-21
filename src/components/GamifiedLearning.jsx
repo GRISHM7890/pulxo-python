@@ -3,8 +3,9 @@ import { useGamification } from '../context/GamificationContext';
 import { Trophy, Star, Target, Flame, CheckCircle2, Lock, Play, Filter, Sparkles, Code2, Terminal, AlertCircle, Skull, ShieldAlert } from 'lucide-react';
 import { MISSIONS, DIFFICULTY_LEVELS, MISSION_TYPES } from '../lib/missionData';
 import { BOSS_DATA } from './BossBattle';
+import LearningMap from './LearningMap';
 
-const GamifiedLearning = ({ onStartMission, onStartBoss }) => {
+const GamifiedLearning = ({ onStartMission, onStartBoss, onLaunchChallenge }) => {
     const gamification = useGamification() || {};
     const [subTab, setSubTab] = useState('missions'); // 'map', 'missions'
 
@@ -139,71 +140,7 @@ const GamifiedLearning = ({ onStartMission, onStartBoss }) => {
 
             {/* MAP VIEW (SKILL TREE ROADMAP) */}
             {subTab === 'map' && (
-                <div style={styles.mapContainer}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                        <h2 style={styles.sectionTitle}><Target size={18} /> Logical Roadmap</h2>
-                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Progress relative to system access level</span>
-                    </div>
-
-                    <div style={styles.nodesContainer}>
-                        {skillTreeMissions.map((node, index) => {
-                            const matchingFullMission = MISSIONS.find(m => m.id === node.missionKey);
-                            return (
-                                <div key={node.id} style={{ display: 'flex', alignItems: 'center' }}>
-                                    <div className={`skill-tree-node ${node.completed ? 'node-done' : node.unlocked ? 'node-ready' : 'node-locked'} ${node.isBoss ? 'boss-node' : ''}`} style={{
-                                        ...styles.node,
-                                        opacity: node.unlocked ? 1 : 0.45,
-                                        borderColor: node.completed ? 'var(--color-success)' : node.isBoss ? 'var(--color-error)' : 'var(--border-color)',
-                                        boxShadow: node.completed ? '0 0 15px rgba(16, 185, 129, 0.15)' : node.isBoss && node.unlocked ? '0 0 20px rgba(239, 68, 68, 0.25)' : 'none'
-                                    }}>
-                                        <div style={styles.nodeHeader}>
-                                            <span style={{ fontWeight: 'bold', fontSize: '14px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '80%' }}>
-                                                {node.title}
-                                            </span>
-                                            {node.completed ? (
-                                                <CheckCircle2 size={16} color="var(--color-success)" style={{ filter: 'drop-shadow(0 0 3px var(--color-success))' }} />
-                                            ) : !node.unlocked ? (
-                                                <Lock size={14} color="var(--text-muted)" />
-                                            ) : node.isBoss ? (
-                                                <Sparkles className="spin" size={14} color="var(--color-error)" />
-                                            ) : null}
-                                        </div>
-                                        <div style={styles.nodeXP}>+{node.xp} XP</div>
-                                        
-                                        {node.unlocked ? (
-                                            <button
-                                                className={`btn ${node.isBoss ? 'btn-error' : 'btn-primary'}`}
-                                                style={{ marginTop: '14px', width: '100%', padding: '6px 12px', fontSize: '12px' }}
-                                                onClick={() => {
-                                                    if (matchingFullMission && onStartMission) {
-                                                        onStartMission(matchingFullMission);
-                                                    }
-                                                }}
-                                            >
-                                                <Play size={12} style={{ marginRight: '4px' }} />
-                                                {node.completed ? 'Replay Run' : node.isBoss ? 'Engage Boss' : 'Launch Unit'}
-                                            </button>
-                                        ) : (
-                                            <div style={styles.lockedNodeLabel}>
-                                                Locked (Level {node.id === 2 || node.id === 3 ? 2 : node.id === 4 ? 3 : 5})
-                                            </div>
-                                        )}
-                                    </div>
-                                    {index < skillTreeMissions.length - 1 && (
-                                        <div style={{
-                                            width: '40px',
-                                            height: '3px',
-                                            backgroundColor: node.completed ? 'var(--color-success)' : 'var(--border-color)',
-                                            borderRadius: '2px',
-                                            margin: '0 4px',
-                                            boxShadow: node.completed ? '0 0 8px var(--color-success)' : 'none'
-                                        }}></div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </div>
+                <LearningMap onLaunchChallenge={onLaunchChallenge} />
             )}
 
             {/* MISSION BOARD VIEW (FILTERED MISSIONS matrix) */}

@@ -6,6 +6,9 @@ export const PRACTICE_TOPICS = [
     'B5: Lists',
     'B6: Functions',
     'B7: File Handling',
+    'B8: OOP',
+    'B9: APIs & JSON',
+    'B10: AI & ML Basics',
     'S1: SQL Basics',
     'S2: SQL Aggregates',
     'S3: SQL Joins'
@@ -383,6 +386,123 @@ export const PROBLEMS = {
             tutorial: [
                 { step: 1, title: 'Classic Join', detail: 'Use a `WHERE` clause to join tables on a common column.', code: 'SELECT EmpName, DeptName\nFROM Employee, Department\nWHERE Employee.DeptID = Department.DeptID;' },
                 { step: 2, title: 'Inner Join Syntax', detail: 'Alternatively, use the `INNER JOIN` keyword for a modern approach.', code: 'SELECT EmpName, DeptName\nFROM Employee\nINNER JOIN Department ON Employee.DeptID = Department.DeptID;' }
+            ]
+        }
+    ],
+    'B8: OOP': [
+        {
+            id: 'oop1',
+            title: 'Hero Class Calibration',
+            difficulty: 'Easy',
+            description: 'Define a class named `Hero` with an `__init__` constructor that accepts `name` (string) and `hp` (integer). Implement a method `take_damage(amount)` that reduces `hp` by `amount` and prints `[name] took damage, hp is now [hp]` to stdout.',
+            input_example: 'Arthur\n100\n30',
+            output_example: 'Arthur took damage, hp is now 70',
+            constraints: 'Define correct class methods.',
+            test_cases: [
+                { input: 'Arthur\n100\n30', expected: 'Arthur took damage, hp is now 70' },
+                { input: 'Neo\n150\n45', expected: 'Neo took damage, hp is now 105' }
+            ],
+            starter_code: 'class Hero:\n    # Define constructor and take_damage here\n    pass\n\n# Execution logic\nname = input()\nhp = int(input())\ndmg = int(input())\n\nhero = Hero(name, hp)\nhero.take_damage(dmg)\n',
+            tutorial: [
+                { step: 1, title: 'Constructor Define', detail: 'Initialize object attributes using self inside __init__.', code: 'def __init__(self, name, hp):\n    self.name = name\n    self.hp = hp' },
+                { step: 2, title: 'Damage Arithmetic', detail: 'Reduce hp state and print formatted string.', code: 'def take_damage(self, amount):\n    self.hp -= amount\n    print(f"{self.name} took damage, hp is now {self.hp}")' }
+            ]
+        },
+        {
+            id: 'oop2',
+            title: 'Method Inheritance',
+            difficulty: 'Medium',
+            description: 'Create a base class `Vehicle` with `__init__(self, brand)` and `drive(self)` which prints `Driving brand`. Create a subclass `ElectricCar` that inherits from `Vehicle` and overrides `drive(self)` to print `Driving electric brand`.',
+            input_example: 'Tesla',
+            output_example: 'Driving electric Tesla',
+            constraints: 'Use class inheritance and override methods.',
+            test_cases: [
+                { input: 'Tesla', expected: 'Driving electric Tesla' },
+                { input: 'Rivian', expected: 'Driving electric Rivian' }
+            ],
+            starter_code: 'class Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n    def drive(self):\n        print(f"Driving {self.brand}")\n\n# Create ElectricCar here inheriting from Vehicle\n\nbrand = input()\ncar = ElectricCar(brand)\ncar.drive()\n',
+            tutorial: [
+                { step: 1, title: 'Subclass Syntax', detail: 'Declare the subclass passing Vehicle parent in parentheses.', code: 'class ElectricCar(Vehicle):' },
+                { step: 2, title: 'Method Overriding', detail: 'Define drive(self) inside ElectricCar to print custom output.', code: 'def drive(self):\n    print(f"Driving electric {self.brand}")' }
+            ]
+        }
+    ],
+    'B9: APIs & JSON': [
+        {
+            id: 'api1',
+            title: 'Deep Nested JSON Parser',
+            difficulty: 'Medium',
+            description: 'A mock web API returns a nested JSON user data structure. Write a program that parses the JSON string from standard input and prints the value corresponding to `street` nested inside `address`. Format: `{"user": {"address": {"street": "..."}}}`.',
+            input_example: '{"user": {"address": {"street": "Cyber Street 101"}}}',
+            output_example: 'Cyber Street 101',
+            constraints: 'Use json.loads() module.',
+            test_cases: [
+                { input: '{"user": {"address": {"street": "Cyber Street 101"}}}', expected: 'Cyber Street 101' },
+                { input: '{"user": {"address": {"street": "Matrix Boulevard 404"}}}', expected: 'Matrix Boulevard 404' }
+            ],
+            starter_code: 'import json\n\ndata_str = input()\n# Parse JSON and print street below\n',
+            tutorial: [
+                { step: 1, title: 'Parse JSON String', detail: 'Convert JSON text to Python dictionary using json.loads.', code: 'import json\ndata = json.loads(data_str)' },
+                { step: 2, title: 'Traverse Keys', detail: 'Access nested items by chaining bracket lookups.', code: 'street = data["user"]["address"]["street"]\nprint(street)' }
+            ]
+        },
+        {
+            id: 'api2',
+            title: 'HTTP Status Calibration',
+            difficulty: 'Easy',
+            description: 'Write a program that takes an HTTP response status integer code from standard input and prints its standard string value: `OK` (for 200), `Created` (for 201), `Bad Request` (for 400), `Unauthorized` (for 401), or `Server Error` (for 500). For any other code, print `Unknown`.',
+            input_example: '201',
+            output_example: 'Created',
+            constraints: 'None',
+            test_cases: [
+                { input: '200', expected: 'OK' },
+                { input: '201', expected: 'Created' },
+                { input: '400', expected: 'Bad Request' },
+                { input: '401', expected: 'Unauthorized' },
+                { input: '500', expected: 'Server Error' },
+                { input: '404', expected: 'Unknown' }
+            ],
+            starter_code: 'code = int(input())\n# Code calibration below\n',
+            tutorial: [
+                { step: 1, title: 'Mapping Dictionary', detail: 'Define status codes mapping to their messages or use if-elif cases.', code: 'status_map = {200: "OK", 201: "Created", 400: "Bad Request", 401: "Unauthorized", 500: "Server Error"}\nprint(status_map.get(code, "Unknown"))' }
+            ]
+        }
+    ],
+    'B10: AI & ML Basics': [
+        {
+            id: 'ai1',
+            title: 'Perceptron Activation Gate',
+            difficulty: 'Easy',
+            description: 'Build a single perceptron activation logic gate. Read three floats from input: `x` (feature), `w` (weight), and `b` (bias) each on a new line. Calculate the activation potential `y = x * w + b`. If `y > 0` print `1`, else print `0`.',
+            input_example: '0.5\n-1.2\n0.3',
+            output_example: '0',
+            constraints: 'Convert inputs to float.',
+            test_cases: [
+                { input: '0.5\n-1.2\n0.3', expected: '0' },
+                { input: '1.5\n0.8\n-0.5', expected: '1' }
+            ],
+            starter_code: 'x = float(input())\nw = float(input())\nb = float(input())\n# Compute perceptron activation gate below\n',
+            tutorial: [
+                { step: 1, title: 'Activation potential', detail: 'Multiply weight and inputs then sum the bias.', code: 'y = x * w + b' },
+                { step: 2, title: 'Step Trigger', detail: 'Perform simple condition logic to output 0 or 1.', code: 'print(1 if y > 0 else 0)' }
+            ]
+        },
+        {
+            id: 'ai2',
+            title: 'Mean Squared Error',
+            difficulty: 'Medium',
+            description: 'Compute Mean Squared Error (MSE) metric between actual predictions `y_pred` and actual targets `y_true`. Read 6 floats from input (first 3 are `y_pred`, next 3 are `y_true`). Print the MSE rounded to 2 decimal places.',
+            input_example: '1.0\n2.0\n3.0\n1.2\n1.8\n3.1',
+            output_example: '0.03',
+            constraints: 'Use round(val, 2) on print.',
+            test_cases: [
+                { input: '1.0\n2.0\n3.0\n1.2\n1.8\n3.1', expected: '0.03' },
+                { input: '10.5\n8.2\n9.0\n10.0\n8.5\n9.2', expected: '0.13' }
+            ],
+            starter_code: 'pred = [float(input()) for _ in range(3)]\ntrue = [float(input()) for _ in range(3)]\n# Compute and print MSE metric below\n',
+            tutorial: [
+                { step: 1, title: 'Squared Differences', detail: 'Calculate the squared variance index per element.', code: 'sq_diffs = [(p - t) ** 2 for p, t in zip(pred, true)]' },
+                { step: 2, title: 'Mean & Formatting', detail: 'Compute the average of squared differences and round it.', code: 'mse = sum(sq_diffs) / len(pred)\nprint(round(mse, 2))' }
             ]
         }
     ]

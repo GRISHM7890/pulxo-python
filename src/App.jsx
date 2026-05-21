@@ -38,6 +38,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('Editor');
   const [activeMission, setActiveMission] = useState(null);
   const [activeBoss, setActiveBoss] = useState(null);
+  const [practicePreset, setPracticePreset] = useState(null);
   const [code, setCode] = useState(`# Welcome to Py Compiler X
 # Write your Python code here
 
@@ -391,7 +392,12 @@ print(f"Fibonacci Sequence: {result}")
               />
             ) : activeTab === 'Practice' ? (
               <Practice
-                onClose={() => setActiveTab('Editor')}
+                onClose={() => {
+                  setPracticePreset(null);
+                  setActiveTab('Gamified Learning');
+                }}
+                initialTopic={practicePreset?.topic}
+                initialProblemIndex={practicePreset?.problemIndex}
               />
             ) : activeTab === 'Profile' ? (
               <Profile
@@ -416,6 +422,10 @@ print(f"Fibonacci Sequence: {result}")
                 <GamifiedLearning 
                   onStartMission={(mission) => setActiveMission(mission)}
                   onStartBoss={(boss) => setActiveBoss(boss)} 
+                  onLaunchChallenge={(topic, problemIndex) => {
+                    setPracticePreset({ topic, problemIndex });
+                    setActiveTab('Practice');
+                  }}
                 />
               )
             ) : (
