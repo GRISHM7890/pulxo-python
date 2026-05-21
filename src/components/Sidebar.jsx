@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Tag, FileCode2, FilePlus, Terminal, GraduationCap, Archive, MoreHorizontal, BarChart2, Database, Trophy, Brain, Sparkles } from 'lucide-react';
+import { Tag, FileCode2, FilePlus, Terminal, GraduationCap, Archive, MoreHorizontal, BarChart2, Database, Trophy, Brain, Sparkles, Swords } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { ref, onValue, limitToLast, query } from 'firebase/database';
 import { useAuth } from '../context/AuthContext';
 import DatabaseSchema from './DatabaseSchema';
 
-const Sidebar = ({ onNotesToggle, onPracticeToggle, activeTab, onSavedProgramsToggle, onFileSelect, onDashboardToggle, onGamifyToggle, onAITutorToggle, language = 'Python' }) => {
+const Sidebar = ({ onNotesToggle, onPracticeToggle, activeTab, onSavedProgramsToggle, onFileSelect, onDashboardToggle, onGamifyToggle, onAITutorToggle, onArenaToggle, language = 'Python' }) => {
     const { user } = useAuth();
     const [recentPrograms, setRecentPrograms] = useState([]);
 
@@ -78,6 +78,13 @@ const Sidebar = ({ onNotesToggle, onPracticeToggle, activeTab, onSavedProgramsTo
                             >
                                 <Trophy size={16} color="var(--color-primary)" />
                                 <span>Gamified Learning</span>
+                            </div>
+                            <div
+                                style={Object.assign({}, styles.fileItem, activeTab === 'Arena' ? styles.activeFileItem : {})}
+                                onClick={() => onArenaToggle && onArenaToggle()}
+                            >
+                                <Swords size={16} color="var(--color-primary)" />
+                                <span>Debugging Arena</span>
                             </div>
                             <div
                                 style={Object.assign({}, styles.fileItem, activeTab === 'AITutor' ? styles.activeFileItem : {})}

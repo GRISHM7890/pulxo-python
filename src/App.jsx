@@ -27,6 +27,7 @@ import { useCollaboration } from './hooks/useCollaboration';
 import { useGamification } from './context/GamificationContext';
 import { Brain } from 'lucide-react';
 import AITutor from './components/AITutor';
+import DebuggingArena from './components/DebuggingArena';
 
 function App() {
   const { user, profile } = useAuth();
@@ -385,6 +386,7 @@ print(f"Fibonacci Sequence: {result}")
       onDashboardToggle={() => { setActiveTab('Dashboard'); setIsSidebarOpen(false); }}
       onGamifyToggle={() => { setActiveTab('Gamified Learning'); setIsSidebarOpen(false); }}
       onAITutorToggle={() => { setActiveTab('AITutor'); setIsSidebarOpen(false); }}
+      onArenaToggle={() => { setActiveTab('Arena'); setIsSidebarOpen(false); }}
       onFileSelect={() => { setActiveTab('Editor'); setIsSidebarOpen(false); }}
       activeTab={activeTab}
       language={selectedLanguage}
@@ -464,6 +466,10 @@ print(f"Fibonacci Sequence: {result}")
               />
             ) : activeTab === 'Dashboard' ? (
               <StudentDashboard
+                onClose={() => setActiveTab('Editor')}
+              />
+            ) : activeTab === 'Arena' ? (
+              <DebuggingArena
                 onClose={() => setActiveTab('Editor')}
               />
             ) : activeTab === 'Gamified Learning' ? (
