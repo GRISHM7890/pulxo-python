@@ -6,14 +6,14 @@ import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAYMaUPNlXjNwZTTZx-wG6ibLLouz9oG8Y",
-    authDomain: "pycompilerx.firebaseapp.com",
-    databaseURL: "https://pycompilerx-default-rtdb.firebaseio.com",
-    projectId: "pycompilerx",
-    storageBucket: "pycompilerx.firebasestorage.app",
-    messagingSenderId: "407564781368",
-    appId: "1:407564781368:web:8c4550b3e3009b5a54a3cd",
-    measurementId: "G-9TT95GJTBE"
+    apiKey: "AIzaSyCLMx3aJhI20p271VjrMkfHqTPxQkDD640",
+    authDomain: "higgsfield-d8e10.firebaseapp.com",
+    databaseURL: "https://higgsfield-d8e10-default-rtdb.firebaseio.com",
+    projectId: "higgsfield-d8e10",
+    storageBucket: "higgsfield-d8e10.firebasestorage.app",
+    messagingSenderId: "195055501204",
+    appId: "1:195055501204:web:2305fbc27b6e9910931981",
+    measurementId: "G-LWWV3V40YS"
 };
 
 // Initialize Firebase

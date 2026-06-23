@@ -4,7 +4,7 @@ import { useGamification } from '../context/GamificationContext';
 import StreakDashboard from './StreakDashboard';
 import { useState } from 'react';
 
-const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning, activeTab, onTabChange, onSaveNote, onOpenAuth, roomId, activeUsers }) => {
+const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning, activeTab, onTabChange, onSaveNote, onOpenAuth, roomId, activeUsers, isSidebarOpen }) => {
     const { user, profile, logout } = useAuth();
     const gamification = useGamification() || {};
     const [showStreakPopover, setShowStreakPopover] = useState(false);
@@ -18,18 +18,24 @@ const Navbar = ({ theme, onThemeChange, onMenuToggle, isMobile, onRun, isRunning
 
     return (
         <nav className="navbar-responsive" style={styles.nav}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-                {isMobile && (
-                    <button className="btn-icon btn" onClick={onMenuToggle} style={{ padding: '4px' }}>
-                        <Menu size={24} />
-                    </button>
-                )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
+                <label className="burger" htmlFor="burger" style={{ marginRight: '4px' }}>
+                    <input 
+                        type="checkbox" 
+                        id="burger" 
+                        checked={isSidebarOpen} 
+                        onChange={onMenuToggle} 
+                    />
+                    <span />
+                    <span />
+                    <span />
+                </label>
                 <div style={styles.logoContainer} onClick={() => onTabChange('Editor')}>
                     <div style={styles.logoIcon}>
                         <Code2 size={24} color="var(--bg-secondary)" />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={styles.logoText}>PY COMPILER X</span>
+                        <span style={styles.logoText}>higgsfield</span>
                         <span style={{ fontSize: '10px', color: 'var(--color-primary)', fontWeight: 'bold', marginLeft: '2px', whiteSpace: 'nowrap' }}>FOR CBSE 12TH</span>
                     </div>
                 </div>
@@ -317,8 +323,9 @@ const styles = {
         boxShadow: '0 2px 8px rgba(59, 130, 246, 0.4)',
     },
     logoText: {
+        fontFamily: "'Space Grotesk', 'Plus Jakarta Sans', 'Inter', sans-serif",
         fontWeight: '700',
-        fontSize: '18px',
+        fontSize: '20px',
         letterSpacing: '-0.5px',
         color: 'var(--text-primary)',
         whiteSpace: 'nowrap',

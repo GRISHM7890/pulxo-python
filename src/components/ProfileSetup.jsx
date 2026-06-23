@@ -41,7 +41,7 @@ const ProfileSetup = () => {
                         <div style={styles.iconCircle}>
                             <Sparkles size={24} color="var(--color-primary)" />
                         </div>
-                        <h2 style={styles.title}>Welcome to Py Compiler X!</h2>
+                        <h2 style={styles.title}>Welcome to higgsfield-1.vercel.app!</h2>
                         <p style={styles.subtitle}>Let's personalize your learning experience</p>
                     </div>
 

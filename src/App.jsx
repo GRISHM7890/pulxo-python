@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from 'react-resizable-panels';
 import './App.css';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -28,11 +27,12 @@ import { useGamification } from './context/GamificationContext';
 import { Brain } from 'lucide-react';
 import AITutor from './components/AITutor';
 import DebuggingArena from './components/DebuggingArena';
+import CertificateGenerator from './components/CertificateGenerator';
 
 function App() {
   const { user, profile } = useAuth();
   const [theme, setTheme] = useState('light');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(window.innerWidth > 768);
   const [isMobile, setIsMobile] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [roomId, setRoomId] = useState(null);
@@ -42,7 +42,7 @@ function App() {
   const [activeMission, setActiveMission] = useState(null);
   const [activeBoss, setActiveBoss] = useState(null);
   const [practicePreset, setPracticePreset] = useState(null);
-  const [code, setCode] = useState(`# Welcome to Py Compiler X
+  const [code, setCode] = useState(`# Welcome to higgsfield-1.vercel.app
 # Write your Python code here
 
 def calculate_fibonacci(n):
@@ -387,6 +387,7 @@ print(f"Fibonacci Sequence: {result}")
       onGamifyToggle={() => { setActiveTab('Gamified Learning'); setIsSidebarOpen(false); }}
       onAITutorToggle={() => { setActiveTab('AITutor'); setIsSidebarOpen(false); }}
       onArenaToggle={() => { setActiveTab('Arena'); setIsSidebarOpen(false); }}
+      onCertificatesToggle={() => { setActiveTab('Certificates'); setIsSidebarOpen(false); }}
       onFileSelect={() => { setActiveTab('Editor'); setIsSidebarOpen(false); }}
       activeTab={activeTab}
       language={selectedLanguage}
@@ -409,32 +410,29 @@ print(f"Fibonacci Sequence: {result}")
           onOpenAuth={() => setIsAuthModalOpen(true)}
           roomId={roomId}
           activeUsers={activeUsers}
+          isSidebarOpen={isSidebarOpen}
         />
       </div>
 
       <div className="main-content">
-        <PanelGroup orientation="horizontal">
-          {!isMobile && (
-            <>
-              <Panel defaultSize={20} minSize={15} maxSize={40}>
-                <div className="sidebar-container" style={{ width: '100%', borderRight: 'none', position: 'relative', transform: 'none', boxShadow: 'none' }}>
-                  {renderSidebar()}
-                </div>
-              </Panel>
-              <PanelResizeHandle className="resize-handle" />
-            </>
-          )}
+        {!isMobile && isSidebarOpen && (
+          <div style={{ width: 'var(--sidebar-width)', height: '100%', flexShrink: 0 }}>
+            <div className="sidebar-container">
+              {renderSidebar()}
+            </div>
+          </div>
+        )}
 
-          {isMobile && (
-            <>
-              <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
-              <div className={`sidebar-container ${isSidebarOpen ? 'open' : ''}`}>
-                {renderSidebar()}
-              </div>
-            </>
-          )}
+        {isMobile && (
+          <>
+            <div className={`sidebar-overlay ${isSidebarOpen ? 'open' : ''}`} onClick={() => setIsSidebarOpen(false)}></div>
+            <div className={`sidebar-container ${isSidebarOpen ? 'open' : ''}`}>
+              {renderSidebar()}
+            </div>
+          </>
+        )}
 
-          <Panel>
+        <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', minWidth: 0, overflow: 'hidden' }}>
             {activeTab === 'Library' ? (
               <CloudLibrary
                 onEdit={(newCode) => {
@@ -451,6 +449,10 @@ print(f"Fibonacci Sequence: {result}")
                 }}
                 initialTopic={practicePreset?.topic}
                 initialProblemIndex={practicePreset?.problemIndex}
+              />
+            ) : activeTab === 'Certificates' ? (
+              <CertificateGenerator
+                onClose={() => setActiveTab('Editor')}
               />
             ) : activeTab === 'Profile' ? (
               <Profile
@@ -594,8 +596,7 @@ print(f"Fibonacci Sequence: {result}")
                 )}
               </div>
             )}
-          </Panel>
-        </PanelGroup>
+        </div>
       </div>
 
       <AuthModal

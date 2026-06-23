@@ -59,7 +59,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                         <p style={styles.subtitle}>
                             {isLogin
                                 ? 'Sign in to access your notes and logic assistant'
-                                : 'Start your Python journey with Py Compiler X'}
+                                : 'Start your Python journey with higgsfield-1.vercel.app'}
                         </p>
                     </div>
 
