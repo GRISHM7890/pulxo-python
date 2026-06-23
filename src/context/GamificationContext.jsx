@@ -151,6 +151,13 @@ export function GamificationProvider({ children }) {
                     successfulRuns: data.successfulRuns || 0,
                     fixesApplied: data.fixesApplied || 0,
                     totalLinesWritten: data.totalLinesWritten || 0,
+                    pythonRuns: data.pythonRuns || 0,
+                    pythonSuccessfulRuns: data.pythonSuccessfulRuns || 0,
+                    pythonLinesWritten: data.pythonLinesWritten || 0,
+                    sqlRuns: data.sqlRuns || 0,
+                    sqlSuccessfulRuns: data.sqlSuccessfulRuns || 0,
+                    sqlLinesWritten: data.sqlLinesWritten || 0,
+                    fastestDebugTime: data.fastestDebugTime !== undefined ? data.fastestDebugTime : null,
                     xp: data.xp || 0,
                     showLevelUp,
                     levelUpData
@@ -169,7 +176,14 @@ export function GamificationProvider({ children }) {
                     totalRuns: 0,
                     successfulRuns: 0,
                     fixesApplied: 0,
-                    totalLinesWritten: 0
+                    totalLinesWritten: 0,
+                    pythonRuns: 0,
+                    pythonSuccessfulRuns: 0,
+                    pythonLinesWritten: 0,
+                    sqlRuns: 0,
+                    sqlSuccessfulRuns: 0,
+                    sqlLinesWritten: 0,
+                    fastestDebugTime: null
                 });
             }
         });
@@ -276,6 +290,14 @@ export function GamificationProvider({ children }) {
         return newVal;
     };
 
+    const updateFastestDebugTime = async (duration) => {
+        if (!user) return;
+        const current = gamificationData.fastestDebugTime || null;
+        if (current === null || duration < current) {
+            await update(ref(db, `users/${user.uid}/gamification`), { fastestDebugTime: duration });
+        }
+    };
+
     const completeMission = async (missionId, xpReward) => {
         if (!user) return;
         const updates = {};
@@ -300,6 +322,7 @@ export function GamificationProvider({ children }) {
         unlockAchievement,
         incrementStat,
         completeMission,
+        updateFastestDebugTime,
         dismissLevelUp,
         activeToast,
         setActiveToast

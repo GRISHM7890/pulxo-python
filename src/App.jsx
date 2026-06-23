@@ -70,6 +70,7 @@ print(f"Fibonacci Sequence: {result}")
   const [executionTime, setExecutionTime] = useState(0);
   const [selectedLanguage, setSelectedLanguage] = useState('Python');
   const [problems, setProblems] = useState([]);
+  const [lastErrorTime, setLastErrorTime] = useState(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const editorRef = useRef(null);
 
@@ -194,6 +195,11 @@ print(f"Fibonacci Sequence: {result}")
       // Increment total lines compiled stat
       if (gamification?.incrementStat) {
           gamification.incrementStat('totalLinesWritten', totalLines);
+          if (selectedLanguage === 'SQL') {
+              gamification.incrementStat('sqlLinesWritten', totalLines);
+          } else {
+              gamification.incrementStat('pythonLinesWritten', totalLines);
+          }
       }
 
       if (selectedLanguage === 'SQL') {
@@ -215,9 +221,21 @@ print(f"Fibonacci Sequence: {result}")
         }
       }
 
+      // Track Error/Success for Fastest Debug
+      if (!isSuccess) {
+          if (!lastErrorTime) {
+              setLastErrorTime(Date.now());
+          }
+      }
+
       // Achievements Checks!
       if (gamification?.unlockAchievement && gamification?.incrementStat) {
           const currentTotalRuns = await gamification.incrementStat('totalRuns', 1);
+          if (selectedLanguage === 'SQL') {
+              await gamification.incrementStat('sqlRuns', 1);
+          } else {
+              await gamification.incrementStat('pythonRuns', 1);
+          }
 
           // 1. First Run achievement
           if (currentTotalRuns === 1) {
@@ -248,15 +266,33 @@ print(f"Fibonacci Sequence: {result}")
               gamification.unlockAchievement('lines_1000');
           }
 
-          // 6. Syntax Survivor & Infinite Loop Destroyer
+          // 6. Syntax Survivor & Infinite Loop Destroyer & Language Specific Success Runs & Fastest Debug
           if (isSuccess) {
               const successCount = await gamification.incrementStat('successfulRuns', 1);
+              if (selectedLanguage === 'SQL') {
+                  await gamification.incrementStat('sqlSuccessfulRuns', 1);
+              } else {
+                  await gamification.incrementStat('pythonSuccessfulRuns', 1);
+              }
+
               if (successCount >= 5) {
                   gamification.unlockAchievement('syntax_survivor');
               }
               // Loop terminator detection (has while/for, but no errors)
               if (code.includes('while') || code.includes('for')) {
                   gamification.unlockAchievement('infinite_loop_destroyer');
+              }
+
+              // Fastest Debug calculation
+              if (lastErrorTime) {
+                  const debugDuration = (Date.now() - lastErrorTime) / 1000;
+                  if (gamification.updateFastestDebugTime) {
+                      await gamification.updateFastestDebugTime(debugDuration);
+                  }
+                  if (debugDuration <= 30) {
+                      gamification.unlockAchievement('fast_debugger');
+                  }
+                  setLastErrorTime(null);
               }
           }
 

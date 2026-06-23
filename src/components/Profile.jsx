@@ -29,11 +29,28 @@ const Profile = ({ onClose }) => {
         }
     };
 
-    // Placeholder data for futuristic UI
-    const accuracy = 94;
-    const fastestDebug = "1.2s";
-    const challengesCompleted = Object.keys(gamification?.completedMissions || {}).length * 3 + 12; // Just a mock multiplier
-    const linesOfCode = challengesCompleted * 124;
+    // Real-time statistics from database
+    const totalRuns = gamification.totalRuns || 0;
+    const successfulRuns = gamification.successfulRuns || 0;
+    const accuracy = totalRuns > 0 ? Math.round((successfulRuns / totalRuns) * 100) : 100;
+    
+    const fastestDebugTime = gamification.fastestDebugTime;
+    const fastestDebug = fastestDebugTime !== null && fastestDebugTime !== undefined ? `${fastestDebugTime.toFixed(1)}s` : 'N/A';
+    
+    const challengesCompleted = Object.keys(gamification?.completedMissions || {}).length;
+    const linesOfCode = gamification.totalLinesWritten || 0;
+
+    const getLanguageStats = (successRuns, lines) => {
+        const score = successRuns * 2 + lines / 10;
+        const level = Math.max(1, Math.floor(Math.sqrt(score)));
+        const baseScore = level === 1 ? 0 : level * level;
+        const nextScore = (level + 1) * (level + 1);
+        const progress = Math.min(100, Math.max(0, Math.round(((score - baseScore) / (nextScore - baseScore)) * 100)));
+        return { level, progress };
+    };
+
+    const pythonStats = getLanguageStats(gamification.pythonSuccessfulRuns || 0, gamification.pythonLinesWritten || 0);
+    const sqlStats = getLanguageStats(gamification.sqlSuccessfulRuns || 0, gamification.sqlLinesWritten || 0);
 
     // Mock heatmap data (30 days)
     const heatmapDays = Array.from({ length: 30 }, (_, i) => Math.floor(Math.random() * 4));
@@ -206,16 +223,16 @@ const Profile = ({ onClose }) => {
                             <div style={styles.masteryItem}>
                                 <div style={styles.masteryHeader}>
                                     <span style={{fontWeight:'bold'}}>Python 3</span>
-                                    <span style={{color:'var(--color-primary)'}}>Level 8</span>
+                                    <span style={{color:'var(--color-primary)'}}>Level {pythonStats.level}</span>
                                 </div>
-                                <div style={styles.xpBarBg}><div className="xp-bar-fill-animated" style={{ width: '85%' }}></div></div>
+                                <div style={styles.xpBarBg}><div className="xp-bar-fill-animated" style={{ width: `${pythonStats.progress}%` }}></div></div>
                             </div>
                             <div style={styles.masteryItem}>
                                 <div style={styles.masteryHeader}>
                                     <span style={{fontWeight:'bold'}}>SQL (SQLite)</span>
-                                    <span style={{color:'#f59e0b'}}>Level 4</span>
+                                    <span style={{color:'#f59e0b'}}>Level {sqlStats.level}</span>
                                 </div>
-                                <div style={styles.xpBarBg}><div className="xp-bar-fill-animated" style={{ width: '42%', backgroundColor: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }}></div></div>
+                                <div style={styles.xpBarBg}><div className="xp-bar-fill-animated" style={{ width: `${sqlStats.progress}%`, backgroundColor: '#f59e0b', boxShadow: '0 0 10px #f59e0b' }}></div></div>
                             </div>
                         </div>
                     </div>
