@@ -322,6 +322,72 @@ const CertificateGenerator = ({ onClose }) => {
                             </svg>
                         )}
 
+                        {/* 4. Detailed Vector Illustration of Albus Dumbledore (Casting a spell) */}
+                        {template === 'wizard' && (
+                            <svg viewBox="0 0 120 180" style={styles.dumbledoreFigure}>
+                                {/* Robe */}
+                                <path d="M 30 110 C 25 110, 15 130, 10 180 L 110 180 C 105 130, 95 110, 90 110 Z" fill="#4c1d95" />
+                                <path d="M 48 110 L 52 180 L 68 180 L 72 110 Z" fill="#d97706" /> {/* Gold lining */}
+                                
+                                {/* Neck */}
+                                <rect x="52" y="85" width="16" height="20" fill="#ffedd5" />
+                                
+                                {/* Face */}
+                                <circle cx="60" cy="70" r="21" fill="#ffedd5" />
+                                
+                                {/* Beard */}
+                                <path d="M 40 75 C 38 100, 42 145, 60 155 C 78 145, 82 100, 80 75 Z" fill="#f1f5f9" />
+                                <path d="M 48 95 C 47 115, 52 135, 60 142" stroke="#cbd5e1" strokeWidth="1.5" fill="none" />
+                                <path d="M 72 95 C 73 115, 68 135, 60 142" stroke="#cbd5e1" strokeWidth="1.5" fill="none" />
+                                <path d="M 60 85 L 60 130" stroke="#cbd5e1" strokeWidth="1" fill="none" />
+                                
+                                {/* Mustache */}
+                                <path d="M 46 80 Q 60 83, 74 80 Q 60 90, 46 80 Z" fill="#cbd5e1" />
+                                
+                                {/* Long Silver Hair */}
+                                <path d="M 39 70 C 35 70, 32 90, 30 130 C 35 130, 39 105, 41 85 Z" fill="#f1f5f9" />
+                                <path d="M 81 70 C 85 70, 88 90, 90 130 C 85 130, 81 105, 79 85 Z" fill="#f1f5f9" />
+                                
+                                {/* Half-Moon Glasses */}
+                                <path d="M 39 70 A 10 10 0 0 0 59 70 Z" stroke="#d97706" strokeWidth="1.8" fill="none" />
+                                <path d="M 61 70 A 10 10 0 0 0 81 70 Z" stroke="#d97706" strokeWidth="1.8" fill="none" />
+                                <path d="M 59 70 Q 60 68, 61 70" stroke="#d97706" strokeWidth="1.8" fill="none" />
+                                <line x1="39" y1="70" x2="34" y2="68" stroke="#d97706" strokeWidth="1.5" />
+                                <line x1="81" y1="70" x2="86" y2="68" stroke="#d97706" strokeWidth="1.5" />
+                                
+                                {/* Twinkling Blue Eyes */}
+                                <circle cx="49" cy="73" r="1.5" fill="#3b82f6" />
+                                <circle cx="71" cy="73" r="1.5" fill="#3b82f6" />
+                                
+                                {/* Crooked Nose */}
+                                <path d="M 59 66 L 57 73 L 61 74" stroke="#d1a580" strokeWidth="1.5" fill="none" />
+                                
+                                {/* Wizard Hat */}
+                                <path d="M 38 49 C 38 49, 45 10, 68 8 C 65 24, 78 36, 82 49 Z" fill="#4c1d95" /> {/* Point */}
+                                <path d="M 38 49 Q 60 46, 82 49 L 81 52 Q 60 49, 39 52 Z" fill="#d97706" /> {/* Hat band */}
+                                <path d="M 33 53 C 33 53, 60 48, 87 53 C 92 53, 94 48, 87 47 C 60 44, 33 47, 33 53 Z" fill="#311052" /> {/* Brim */}
+                                
+                                {/* Star details on hat */}
+                                <path d="M 58 24 Q 60 24, 60 22 Q 60 24, 62 24 Q 60 24, 60 26 Q 60 24, 58 24 Z" fill="#fbbf24" />
+                                <path d="M 64 34 Q 66 34, 66 32 Q 66 34, 68 34 Q 66 34, 66 36 Q 66 34, 64 34 Z" fill="#fbbf24" />
+                                
+                                {/* Hand holding Elder Wand */}
+                                <circle cx="96" cy="120" r="5" fill="#ffedd5" />
+                                <line x1="96" y1="120" x2="122" y2="105" stroke="#78350f" strokeWidth="2.5" strokeLinecap="round" />
+                                {/* Elder Wand nodules */}
+                                <circle cx="102" cy="116" r="3.2" fill="#78350f" />
+                                <circle cx="108" cy="112" r="2.8" fill="#78350f" />
+                                <circle cx="114" cy="109" r="2.4" fill="#78350f" />
+                                
+                                {/* Sparkles (blue/silver magical sparks) */}
+                                <circle cx="122" cy="105" r="2.5" fill="#60a5fa" />
+                                <path d="M 122 93 L 122 117 M 110 105 L 134 105" stroke="#93c5fd" strokeWidth="0.8" opacity="0.9" />
+                                <circle cx="112" cy="93" r="1" fill="#93c5fd" />
+                                <circle cx="130" cy="117" r="1.5" fill="#60a5fa" />
+                                <circle cx="136" cy="98" r="0.8" fill="#ffffff" />
+                            </svg>
+                        )}
+
                         {/* Certificate Inner Container */}
                         <div style={{
                             ...styles.certBorder,
@@ -777,6 +843,16 @@ const styles = {
     wizardFigure: {
         position: 'absolute',
         right: '4.375%',
+        top: '21.238%',
+        width: '13.125%',
+        height: '27.964%',
+        zIndex: 10,
+        pointerEvents: 'none',
+        filter: 'drop-shadow(0 4px 10px rgba(74, 44, 17, 0.25))',
+    },
+    dumbledoreFigure: {
+        position: 'absolute',
+        left: '4.375%',
         top: '21.238%',
         width: '13.125%',
         height: '27.964%',
